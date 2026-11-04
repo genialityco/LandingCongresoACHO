@@ -2,7 +2,7 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore/lite";
 import { publicDb } from "@/lib/firebase/server";
-import { SETTINGS_KEYS, withDefaults, type GlobalSettings, type SettingsKey } from "@/lib/model/settings";
+import { EMPTY_SETTINGS, SETTINGS_KEYS, withDefaults, type GlobalSettings, type SettingsKey } from "@/lib/model/settings";
 import type { PageData, PublishedPageDoc } from "@/lib/model/types";
 import { joinChunks } from "@/lib/serialization/chunks";
 import { parsePageData } from "@/lib/serialization/page-data";
@@ -21,23 +21,46 @@ export async function loadPublishedPage(slug: string): Promise<{ meta: Published
   cacheTag(pageTag(slug), "published-pages");
   cacheLife(PUBLIC_CACHE);
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return null;
-  const snap = await getDoc(doc(publicDb, "publishedPages", slug));
+  let snap;
+  try {
+    snap = await getDoc(doc(publicDb, "publishedPages", slug));
+  } catch (error) {
+    console.error("[public] No se pudo leer la página publicada", { slug, error });
+    return null;
+  }
   if (!snap.exists()) return null;
   const meta = snap.data() as PublishedPageDoc;
   let json = meta.inline;
   if (!json) {
-    const chunks = await getDocs(collection(publicDb, "publishedPages", slug, "chunks"));
+    let chunks;
+    try {
+      chunks = await getDocs(collection(publicDb, "publishedPages", slug, "chunks"));
+    } catch (error) {
+      console.error("[public] No se pudieron leer los fragmentos de la página", { slug, error });
+      return null;
+    }
     json = joinChunks(chunks.docs.map((d) => d.data() as { index: number; json: string }));
   }
-  // Los Timestamp de Firestore no son serializables por la caché: copia JSON plana.
-  return { meta: JSON.parse(JSON.stringify(meta)) as PublishedPageDoc, data: parsePageData(json) };
+  try {
+    // Los Timestamp de Firestore no son serializables por la caché: copia JSON plana.
+    return { meta: JSON.parse(JSON.stringify(meta)) as PublishedPageDoc, data: parsePageData(json) };
+  } catch (error) {
+    console.error("[public] La página publicada contiene datos inválidos", { slug, error });
+    return null;
+  }
 }
 
 export async function loadPublicSettings(): Promise<GlobalSettings> {
   "use cache";
   cacheTag(SETTINGS_TAG);
   cacheLife(PUBLIC_CACHE);
-  const snap = await getDocs(collection(publicDb, "globalSettings"));
+  let snap;
+  try {
+    snap = await getDocs(collection(publicDb, "globalSettings"));
+  } catch (error) {
+    console.error("[public] No se pudieron leer los ajustes públicos; se usarán valores vacíos", error);
+    return EMPTY_SETTINGS;
+  }
   const values = new Map(snap.docs.map((d) => [d.id, d.data().value]));
   const out = {} as GlobalSettings;
   for (const key of SETTINGS_KEYS) (out as Record<SettingsKey, unknown>)[key] = withDefaults(key, values.get(key));
