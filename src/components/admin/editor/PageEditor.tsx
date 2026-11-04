@@ -74,7 +74,7 @@ export function PageEditor({ pageId }: { pageId: string }) {
       <div className="grid min-h-screen place-items-center p-6 text-center">
         <div className="space-y-3">
           <p className="text-destructive">{loadError}</p>
-          <Button variant="outline" render={<Link href="/admin" />}>
+          <Button variant="outline" nativeButton={false} render={<Link href="/admin" />}>
             Volver
           </Button>
         </div>
@@ -380,7 +380,7 @@ function HeaderActions(props: {
 
   return (
     <div className="flex items-center gap-1.5">
-      <Button size="sm" variant="ghost" render={<Link href="/admin" />} title="Volver al listado">
+      <Button size="sm" variant="ghost" nativeButton={false} render={<Link href="/admin" />} title="Volver al listado">
         <ArrowLeft />
       </Button>
       <StatusBadge status={props.status} lastSaved={props.lastSaved} />
@@ -411,10 +411,10 @@ function HeaderActions(props: {
       <Button size="sm" variant="outline" onClick={props.onSettings}>
         <Settings /> Ajustes
       </Button>
-      <Button size="sm" variant="outline" render={<Link href={`/admin/pages/${page.id}/versions`} target="_blank" />}>
+      <Button size="sm" variant="outline" nativeButton={false} render={<Link href={`/admin/pages/${page.id}/versions`} target="_blank" />}>
         <History /> Versiones
       </Button>
-      <Button size="sm" variant="outline" render={<a href={`/preview/${page.id}`} target="_blank" rel="noreferrer" />}>
+      <Button size="sm" variant="outline" nativeButton={false} render={<a href={`/preview/${page.id}`} target="_blank" rel="noreferrer" />}>
         <Eye /> Vista previa
       </Button>
       {props.canEdit ? (

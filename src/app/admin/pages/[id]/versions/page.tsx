@@ -85,7 +85,7 @@ export default function VersionsPage({ params }: { params: Promise<{ id: string 
         title={`Historial · ${page?.name ?? "…"}`}
         description="Cada publicación crea una versión inmutable. Puedes previsualizarla o restaurarla como borrador."
         actions={
-          <Button variant="outline" render={<Link href={`/admin/pages/${id}`} />}>
+          <Button variant="outline" nativeButton={false} render={<Link href={`/admin/pages/${id}`} />}>
             <ArrowLeft /> Volver al editor
           </Button>
         }
@@ -133,7 +133,7 @@ export default function VersionsPage({ params }: { params: Promise<{ id: string 
                     <TableCell className="text-sm text-muted-foreground">{formatBytes(v.byteSize)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1.5">
-                        <Button size="sm" variant="outline" render={<a href={`/preview/${id}?version=${v.id}`} target="_blank" rel="noreferrer" />}>
+                        <Button size="sm" variant="outline" nativeButton={false} render={<a href={`/preview/${id}?version=${v.id}`} target="_blank" rel="noreferrer" />}>
                           <Eye /> Ver
                         </Button>
                         {can.edit ? (
