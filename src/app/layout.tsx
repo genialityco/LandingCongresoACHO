@@ -10,6 +10,8 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: { default: "Congreso ACHO", template: "%s" },
   description: "Landing pages administrables",
+  // Favicon administrable (Ajustes › Sitio); ver app/site-icon/route.ts.
+  icons: { icon: "/site-icon", shortcut: "/site-icon" },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

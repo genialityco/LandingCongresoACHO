@@ -18,7 +18,7 @@ export async function publishedMetadata(slug: string): Promise<Metadata> {
     description: seo.description || undefined,
     alternates: seo.canonicalUrl ? { canonical: seo.canonicalUrl } : undefined,
     robots: seo.noindex ? { index: false, follow: false } : { index: true, follow: true },
-    icons: settings.site.favicon?.url ? { icon: settings.site.favicon.url } : undefined,
+    icons: settings.site.favicon?.url ? { icon: `/site-icon?v=${encodeURIComponent(settings.site.favicon.mediaId ?? "")}`, shortcut: "/site-icon" } : undefined,
     openGraph: {
       title,
       description: seo.description || undefined,
