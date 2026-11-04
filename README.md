@@ -36,6 +36,18 @@ NEXT_PUBLIC_USE_EMULATORS=false
 Never deploy the local `.env.local` unchanged: emulator mode points the server to
 `127.0.0.1:8080`, which is not the deployed Firestore instance.
 
+### Netlify secret scanning
+
+`NEXT_PUBLIC_FIREBASE_API_KEY` is a Firebase Web API key. It is intentionally embedded in
+the browser bundle and is not a server credential; Firebase Security Rules and App Check
+protect access to Firebase resources. Netlify Smart Detection can still report its `AIza...`
+value as a likely secret.
+
+In the Netlify site environment variables, add
+`SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES` with the exact value of
+`NEXT_PUBLIC_FIREBASE_API_KEY`. Keep Smart Detection enabled and do not add private service
+account values to the omit list. Trigger a fresh deploy after saving the variable.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
