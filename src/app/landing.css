@@ -204,13 +204,27 @@
 .lp-sidebar a:hover { background: rgba(255,255,255,.08); color: var(--lp-sidebar-hover); }
 .lp-sidebar .lp-sidebar-sub a { padding-left: 26px; font-size: .92em; opacity: .85; }
 .lp-sidebar-fab { display: none; position: fixed; bottom: 18px; z-index: 45; width: 52px; height: 52px; border-radius: 999px; border: 0; cursor: pointer; place-items: center; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
-.lp-footer { width: 100%; padding-left: var(--lp-gutter); padding-right: var(--lp-gutter); }
-.lp-footer-inner { margin: 0 auto; display: grid; grid-template-columns: 1.4fr repeat(var(--lp-footer-cols, 3), minmax(0, 1fr)); gap: 40px; }
+.lp-footer { width: 100%; padding-left: var(--lp-gutter); padding-right: var(--lp-gutter); position: relative; overflow: hidden; }
+.lp-footer > .lp-footer-inner, .lp-footer > .lp-footer-bottom { position: relative; z-index: 2; }
+.lp-footer-inner { margin: 0 auto; display: grid; grid-template-columns: 1.4fr repeat(var(--lp-footer-cols, 3), minmax(0, 1fr)) var(--lp-footer-extra, ); gap: 40px; align-items: start; }
+.lp-footer-brand { display: flex; flex-direction: column; gap: 28px; align-items: flex-start; }
+.lp-footer-logo { height: 40px; width: auto; max-width: 100%; }
+.lp-footer-social.is-circle a { width: 36px; height: 36px; }
+.lp-footer-legal { display: flex; gap: 12px 72px; flex-wrap: wrap; text-transform: uppercase; }
+.lp-newsletter { border: 2px solid rgba(255,255,255,.85); border-radius: 22px; padding: 28px 32px; display: flex; flex-direction: column; gap: 14px; text-align: center; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.lp-newsletter h3 { margin: 0; text-transform: uppercase; letter-spacing: .03em; font-size: 1rem; }
+.lp-newsletter p { margin: 0; font-weight: 500; line-height: 1.35; }
+.lp-newsletter-form { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; position: relative; }
+.lp-newsletter-form input[type="email"] { font: inherit; width: 100%; border: 0; border-radius: 999px; padding: 8px 16px; background: #fff; color: #1f2937; }
+.lp-newsletter-form input[type="email"]:focus { outline: 3px solid var(--lp-color-accent); outline-offset: 1px; }
+.lp-newsletter-form button { font: inherit; font-size: .8em; font-weight: 700; text-transform: uppercase; border: 0; border-radius: 999px; padding: 9px 16px; cursor: pointer; background: var(--lp-btn-primary-bg); color: var(--lp-btn-primary-color); }
+.lp-newsletter-form button:disabled { opacity: .7; cursor: wait; }
+.lp-newsletter-status { font-weight: 600; margin: 0; }
 .lp-footer h3 { font-size: 1rem; margin-bottom: 14px; }
 .lp-footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .lp-footer a { text-decoration: none; }
 .lp-footer a:hover { text-decoration: underline; }
-.lp-footer-bottom { margin: 40px auto 0; padding-top: 24px; border-top: 1px solid rgba(148,163,184,.2); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: .9em; }
+.lp-footer-bottom { margin: 40px auto 0; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.35); align-items: center; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: .9em; }
 .lp-footer-social { display: flex; gap: 12px; }
 .lp-footer-social a { width: 38px; height: 38px; border-radius: 999px; display: grid; place-items: center; background: rgba(148,163,184,.15); }
 

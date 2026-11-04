@@ -186,6 +186,21 @@ service cloud.firestore {
         && request.resource.data.editorsCanPublish is bool;
     }
 
+    // ---------- Suscriptores del newsletter ----------
+    // Público solo puede CREAR su suscripción (id = correo en minúsculas). No puede leer,
+    // listar ni sobrescribir; un correo repetido es rechazado (ya estaba suscrito).
+    match /suscritos/{email} {
+      allow create: if email.size() <= 200
+        && email.matches('^[^ @/]+@[^ @/]+[.][^ @/]{2,}$')
+        && request.resource.data.keys().hasOnly(['email', 'source', 'createdAt'])
+        && request.resource.data.email == email
+        && request.resource.data.source is string && request.resource.data.source.size() <= 120
+        && request.resource.data.createdAt == request.time;
+      allow read: if isStaff();
+      allow delete: if isAdmin();
+      allow update: if false;
+    }
+
     // ---------- Formularios públicos ----------
     match /formSubmissions/{submissionId} {
       allow create: if request.resource.data.keys().hasOnly(['pageSlug', 'formId', 'fields', 'createdAt'])

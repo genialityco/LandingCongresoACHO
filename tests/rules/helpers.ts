@@ -3,13 +3,19 @@ import { initializeTestEnvironment, type RulesTestEnvironment } from "@firebase/
 import type { Firestore } from "firebase/firestore";
 import type { FirebaseStorage } from "firebase/storage";
 
-export const PROJECT_ID = "demo-congresoacho";
+// Proyecto propio para pruebas: nunca toca los datos del emulador de desarrollo.
+export const PROJECT_ID = process.env.TEST_PROJECT_ID ?? "demo-congresoacho-test";
+
+function hostPort(envVar: string, fallback: number) {
+  const [host, port] = (process.env[envVar] ?? `127.0.0.1:${fallback}`).split(":");
+  return { host, port: Number(port) };
+}
 
 export async function createEnv(): Promise<RulesTestEnvironment> {
   return initializeTestEnvironment({
     projectId: PROJECT_ID,
-    firestore: { rules: readFileSync("firestore.rules", "utf8"), host: "127.0.0.1", port: 8080 },
-    storage: { rules: readFileSync("storage.rules", "utf8"), host: "127.0.0.1", port: 9199 },
+    firestore: { rules: readFileSync("firestore.rules", "utf8"), ...hostPort("FIRESTORE_EMULATOR_HOST", 8080) },
+    storage: { rules: readFileSync("storage.rules", "utf8"), ...hostPort("FIREBASE_STORAGE_EMULATOR_HOST", 9199) },
   });
 }
 

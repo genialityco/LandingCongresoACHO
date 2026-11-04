@@ -119,6 +119,25 @@ export type FooterSettings = {
   paddingY: string;
   maxWidth: string;
   visibility: DeviceVisibility;
+  /** Imagen de fondo con capa de color encima. */
+  background: { image: MediaRef | null; overlayColor: string; overlayOpacity: number };
+  logoHeight: ResponsiveValue<string>;
+  /** Tamaño de los enlaces de las columnas. */
+  linkSize: string;
+  socialStyle: { variant: "soft" | "circle"; background: string; color: string };
+  newsletter: {
+    enabled: boolean;
+    title: string;
+    text: string;
+    placeholder: string;
+    buttonLabel: string;
+    successMessage: string;
+    borderColor: string;
+    buttonBackground: string;
+    buttonColor: string;
+  };
+  /** Enlaces legales de la barra inferior (a la izquierda del copyright). */
+  legalLinks: { id: string; label: string; href: string; newTab: boolean }[];
 };
 
 export type SiteSettings = {
@@ -228,6 +247,22 @@ export const EMPTY_SETTINGS: GlobalSettings = {
     paddingY: "64px",
     maxWidth: "1200px",
     visibility: allDevices,
+    background: { image: null, overlayColor: "#0b1120", overlayOpacity: 0.85 },
+    logoHeight: { desktop: "40px" },
+    linkSize: "",
+    socialStyle: { variant: "soft", background: "#ffffff", color: "#0b1120" },
+    newsletter: {
+      enabled: false,
+      title: "",
+      text: "",
+      placeholder: "Tu email",
+      buttonLabel: "Suscribirme",
+      successMessage: "¡Gracias por suscribirte!",
+      borderColor: "rgba(255,255,255,0.85)",
+      buttonBackground: "",
+      buttonColor: "",
+    },
+    legalLinks: [],
   },
   site: { siteName: "", homeSlug: "", favicon: null, language: "es" },
 };

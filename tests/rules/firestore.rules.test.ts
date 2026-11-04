@@ -167,3 +167,27 @@ describe("formularios públicos", () => {
     await assertSucceeds(getDocs(collection(fsOf(env, "viewer"), "formSubmissions")));
   });
 });
+
+describe("suscriptores del newsletter", () => {
+  const sub = (email: string, extra: Record<string, unknown> = {}) => ({ email, source: "/demo", createdAt: serverTimestamp(), ...extra });
+  it("un visitante se suscribe una sola vez y no puede leer la lista", async () => {
+    const db = fsOf(env, "anon");
+    await assertSucceeds(setDoc(doc(db, "suscritos/ana@correo.com"), sub("ana@correo.com")));
+    await assertFails(setDoc(doc(db, "suscritos/ana@correo.com"), sub("ana@correo.com")));
+    await assertFails(getDoc(doc(db, "suscritos/ana@correo.com")));
+    await assertFails(getDocs(collection(db, "suscritos")));
+    await assertSucceeds(getDocs(collection(fsOf(env, "viewer"), "suscritos")));
+  });
+  it("rechaza correos inválidos, id distinto al correo o campos extra", async () => {
+    const db = fsOf(env, "anon");
+    await assertFails(setDoc(doc(db, "suscritos/no-es-correo"), sub("no-es-correo")));
+    await assertFails(setDoc(doc(db, "suscritos/a@b.com"), sub("otro@b.com")));
+    await assertFails(setDoc(doc(db, "suscritos/c@d.com"), sub("c@d.com", { admin: true })));
+    await assertFails(setDoc(doc(db, "suscritos/e@f.com"), { email: "e@f.com", source: "/", createdAt: new Date(0) }));
+  });
+  it("solo admin elimina suscriptores", async () => {
+    await env.withSecurityRulesDisabled((c) => c.firestore().doc("suscritos/x@y.com").set({ email: "x@y.com" }));
+    await assertFails(deleteDoc(doc(fsOf(env, "editor"), "suscritos/x@y.com")));
+    await assertSucceeds(deleteDoc(doc(fsOf(env, "admin"), "suscritos/x@y.com")));
+  });
+});

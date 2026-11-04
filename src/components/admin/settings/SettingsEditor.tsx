@@ -308,9 +308,22 @@ function FooterForm({ v, set }: { v: FooterSettings; set: (v: FooterSettings) =>
         <FormRow label="Padding vertical"><Input value={v.paddingY} onChange={(e) => set({ ...v, paddingY: e.target.value })} /></FormRow>
         <FormRow label="Ancho máximo"><Input value={v.maxWidth} onChange={(e) => set({ ...v, maxWidth: e.target.value })} /></FormRow>
       </Group>
+      <Group title="Fondo">
+        <FormRow label="Imagen de fondo (opcional)">
+          <MediaField value={v.background.image} onChange={(image) => set({ ...v, background: { ...v.background, image } })} />
+        </FormRow>
+        <div className="space-y-3">
+          <FormRow label="Color de la capa sobre la imagen"><ColorInput value={v.background.overlayColor} onChange={(x) => set({ ...v, background: { ...v.background, overlayColor: x } })} /></FormRow>
+          <FormRow label={`Opacidad de la capa: ${Math.round(v.background.overlayOpacity * 100)}%`}>
+            <input type="range" min={0} max={1} step={0.05} className="w-full" value={v.background.overlayOpacity} onChange={(e) => set({ ...v, background: { ...v.background, overlayOpacity: Number(e.target.value) } })} />
+          </FormRow>
+          <p className="text-xs text-muted-foreground">Sin imagen se usa el color de fondo de la sección «Colores».</p>
+        </div>
+      </Group>
       <Group title="Marca">
         <FormRow label="Logo"><MediaField value={v.logo} onChange={(logo) => set({ ...v, logo })} /></FormRow>
         <div className="space-y-3">
+          <ResponsiveInputs label="Alto del logo" value={v.logoHeight} onChange={(logoHeight) => set({ ...v, logoHeight })} />
           <FormRow label="Descripción"><Textarea rows={4} value={v.about} onChange={(e) => set({ ...v, about: e.target.value })} /></FormRow>
           <FormRow label="Copyright" hint="{year} se reemplaza por el año actual"><Input value={v.copyright} onChange={(e) => set({ ...v, copyright: e.target.value })} /></FormRow>
         </div>
@@ -352,6 +365,34 @@ function FooterForm({ v, set }: { v: FooterSettings; set: (v: FooterSettings) =>
             <Plus /> Añadir red
           </Button>
         </div>
+      </Group>
+      <Group title="Estilo de redes y enlaces" cols={4}>
+        <FormRow label="Iconos de redes">
+          <NativeSelect value={v.socialStyle.variant} onChange={(e) => set({ ...v, socialStyle: { ...v.socialStyle, variant: e.target.value as "soft" | "circle" } })}>
+            <option value="soft">Suaves</option>
+            <option value="circle">Círculo de color</option>
+          </NativeSelect>
+        </FormRow>
+        <FormRow label="Fondo del círculo"><ColorInput value={v.socialStyle.background} onChange={(x) => set({ ...v, socialStyle: { ...v.socialStyle, background: x } })} /></FormRow>
+        <FormRow label="Color del icono"><ColorInput value={v.socialStyle.color} onChange={(x) => set({ ...v, socialStyle: { ...v.socialStyle, color: x } })} /></FormRow>
+        <FormRow label="Tamaño de los enlaces" hint="p. ej. 18px"><Input value={v.linkSize} onChange={(e) => set({ ...v, linkSize: e.target.value })} /></FormRow>
+      </Group>
+      <Group title="Newsletter (se guarda en la colección «suscritos»)">
+        <Toggle label="Mostrar newsletter" checked={v.newsletter.enabled} onChange={(enabled) => set({ ...v, newsletter: { ...v.newsletter, enabled } })} />
+        <FormRow label="Título"><Input value={v.newsletter.title} onChange={(e) => set({ ...v, newsletter: { ...v.newsletter, title: e.target.value } })} /></FormRow>
+        <FormRow label="Texto"><Textarea rows={3} value={v.newsletter.text} onChange={(e) => set({ ...v, newsletter: { ...v.newsletter, text: e.target.value } })} /></FormRow>
+        <div className="space-y-3">
+          <FormRow label="Placeholder del correo"><Input value={v.newsletter.placeholder} onChange={(e) => set({ ...v, newsletter: { ...v.newsletter, placeholder: e.target.value } })} /></FormRow>
+          <FormRow label="Texto del botón"><Input value={v.newsletter.buttonLabel} onChange={(e) => set({ ...v, newsletter: { ...v.newsletter, buttonLabel: e.target.value } })} /></FormRow>
+        </div>
+        <FormRow label="Mensaje al suscribirse"><Input value={v.newsletter.successMessage} onChange={(e) => set({ ...v, newsletter: { ...v.newsletter, successMessage: e.target.value } })} /></FormRow>
+        <FormRow label="Borde del recuadro"><ColorInput value={v.newsletter.borderColor} onChange={(x) => set({ ...v, newsletter: { ...v.newsletter, borderColor: x } })} /></FormRow>
+        <FormRow label="Fondo del botón"><ColorInput value={v.newsletter.buttonBackground} onChange={(x) => set({ ...v, newsletter: { ...v.newsletter, buttonBackground: x } })} /></FormRow>
+        <FormRow label="Texto del botón (color)"><ColorInput value={v.newsletter.buttonColor} onChange={(x) => set({ ...v, newsletter: { ...v.newsletter, buttonColor: x } })} /></FormRow>
+      </Group>
+      <Group title="Barra inferior: enlaces legales" cols={1}>
+        <SimpleLinksEditor value={v.legalLinks} onChange={(legalLinks) => set({ ...v, legalLinks })} />
+        <p className="text-xs text-muted-foreground">El texto de la derecha es el «Copyright» de la sección Marca.</p>
       </Group>
       <Group title="Colores" cols={4}>
         <FormRow label="Fondo"><ColorInput value={v.colors.background} onChange={(x) => set({ ...v, colors: { ...v.colors, background: x } })} /></FormRow>
