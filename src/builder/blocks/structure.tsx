@@ -53,7 +53,7 @@ export function ContainerBlock(p: ContainerProps) {
   return (
     <div ref={rootRef(p)} className={`lp-container ${s.className}`} {...s.attrs}>
       <StyleTag css={css} />
-      <Content className="lp-flow" style={{ display: "flex", flexDirection: "column", gap: 20 }} minEmptyHeight={EMPTY_SLOT} />
+      <Content className="lp-flow lp-flow-container" minEmptyHeight={EMPTY_SLOT} />
     </div>
   );
 }
@@ -93,7 +93,7 @@ export function ColumnBlock(p: ColumnProps) {
   return (
     <div ref={rootRef(p)} className={`lp-column ${s.className}`} {...s.attrs}>
       <StyleTag css={css} />
-      <Content className="lp-flow" style={{ display: "flex", flexDirection: "column", gap: 16, height: "100%" }} minEmptyHeight={EMPTY_SLOT} />
+      <Content className="lp-flow lp-flow-column" minEmptyHeight={EMPTY_SLOT} />
     </div>
   );
 }

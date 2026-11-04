@@ -81,7 +81,8 @@ export function themeCss(theme: ThemeSettings, scope = ".lp-root"): string {
   for (const h of HEADINGS) {
     css += responsiveCss(scope, rv(t.headings[h].size), (v) => ({ [`--lp-${h}-size`]: v }));
   }
-  css += rule(`${scope} h1,${scope} h2,${scope} h3,${scope} h4,${scope} h5,${scope} h6`, {
+  // :where() deja la especificidad en 0 para que los estilos de cada bloque tengan prioridad.
+  css += rule(`:where(${scope}) :is(h1,h2,h3,h4,h5,h6)`, {
     "font-family": "var(--lp-font-secondary)",
   });
   return css;

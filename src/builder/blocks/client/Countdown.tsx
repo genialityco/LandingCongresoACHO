@@ -61,7 +61,7 @@ export function CountdownClient({
   return (
     <div className="lp-countdown-units" role="timer" aria-live="off" aria-label={parts ? `Faltan ${parts.days} días, ${parts.hours} horas y ${parts.minutes} minutos` : "Cargando contador"}>
       {units.map((u) => (
-        <div key={u.key} className="lp-countdown-unit">
+        <div key={u.key} className="lp-countdown-unit" data-unit={u.key}>
           <span className="lp-countdown-value">{value(u.key)}</span>
           <span className="lp-countdown-label">{u.label}</span>
         </div>

@@ -111,7 +111,7 @@ export function OverlayLayerBlock(p: OverlayLayerProps) {
   return (
     <div ref={rootRef(p)} className={`lp-overlay-layer ${s.className}`} {...s.attrs}>
       <StyleTag css={css} />
-      <Content className="lp-flow" style={{ display: "flex", flexDirection: "column", gap: 12 }} minEmptyHeight={60} />
+      <Content className="lp-flow lp-flow-layer" minEmptyHeight={60} />
     </div>
   );
 }
@@ -480,6 +480,13 @@ export type CountdownProps = BlockProps<{
   numberColor: string;
   labelColor: string;
   boxColor: string;
+  /** Color de número por unidad (vacío = numberColor). */
+  unitColors?: { days?: string; hours?: string; minutes?: string; seconds?: string };
+  boxBorderColor?: string;
+  /** Desenfoca el fondo detrás de los recuadros. */
+  glass?: boolean;
+  /** Los recuadros se reparten todo el ancho disponible. */
+  stretch?: boolean;
 }>;
 
 export function CountdownBlock(p: CountdownProps) {
@@ -490,9 +497,13 @@ export function CountdownBlock(p: CountdownProps) {
       "--lp-cd-number": p.numberColor,
       "--lp-cd-label": p.labelColor,
       "--lp-cd-box": p.boxColor,
-    });
+      "--lp-cd-border": p.boxBorderColor,
+    }) +
+    (["days", "hours", "minutes", "seconds"] as const)
+      .map((u) => rule(`${s.selector} .lp-countdown-unit[data-unit="${u}"] .lp-countdown-value`, { color: p.unitColors?.[u] }))
+      .join("");
   return (
-    <div ref={rootRef(p)} className={`lp-countdown is-${p.size ?? "medium"} is-${p.variant ?? "boxes"} ${s.className}`} {...s.attrs}>
+    <div ref={rootRef(p)} className={`lp-countdown is-${p.size ?? "medium"} is-${p.variant ?? "boxes"}${p.glass ? " is-glass" : ""}${p.stretch ? " is-stretch" : ""} ${s.className}`} {...s.attrs}>
       <StyleTag css={css} />
       <CountdownClient
         targetIso={p.target ?? ""}
