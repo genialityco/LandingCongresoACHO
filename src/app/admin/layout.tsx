@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// El panel depende de Firebase Auth en el cliente y puede bloquear la navegación inicial.
+export const instant = false;
+
 // El panel es 100% cliente (Firebase Auth en el navegador): se entrega como contenido dinámico.
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (

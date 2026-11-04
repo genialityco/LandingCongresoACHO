@@ -277,6 +277,7 @@ export const puckConfig: Config = {
         poster: mediaField("Póster / miniatura"),
         title: text("Título accesible"),
         aspectRatio: select("Proporción", [["16/9", "16:9"], ["4/3", "4:3"], ["1/1", "1:1"], ["9/16", "9:16 (vertical)"], ["21/9", "21:9"]]),
+        customAspectRatio: text("Proporción personalizada (ej. 1920/300)"),
         autoplay: toggle("Reproducción automática (requiere silencio)"),
         muted: toggle("Silenciado"),
         loop: toggle("Bucle"),
@@ -285,7 +286,7 @@ export const puckConfig: Config = {
         layout: layoutField(BOX),
         appearance: appearanceField(["border", "effects", "animation", "advanced"]),
       },
-      defaultProps: { video: { source: "youtube", url: "" }, poster: null, title: "Video", aspectRatio: "16/9", autoplay: false, muted: false, loop: false, controls: true, radius: "12px", layout: {}, appearance: {} },
+      defaultProps: { video: { source: "youtube", url: "" }, poster: null, title: "Video", aspectRatio: "16/9", customAspectRatio: "", autoplay: false, muted: false, loop: false, controls: true, radius: "12px", layout: {}, appearance: {} },
     }),
     Button: block("Button", {
       fields: {

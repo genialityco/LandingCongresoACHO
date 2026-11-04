@@ -105,9 +105,15 @@ export type VideoProps = BlockProps<{
   muted: boolean;
   loop: boolean;
   controls: boolean;
-  aspectRatio: "16/9" | "4/3" | "1/1" | "9/16" | "21/9";
+  aspectRatio: string;
+  customAspectRatio?: string;
   radius: string;
 }>;
+
+function safeAspectRatio(value: string | undefined) {
+  const ratio = (value ?? "16/9").trim().replace(/\s+/g, "");
+  return /^\d+(?:\.\d+)?\/\d+(?:\.\d+)?$/.test(ratio) ? ratio.replace("/", " / ") : "16 / 9";
+}
 
 export function videoSourceInfo(v?: VideoSource): { kind: "embed" | "file"; src: string; thumb?: string } | null {
   if (!v) return null;
@@ -130,7 +136,7 @@ export function VideoBlock(p: VideoProps) {
   return (
     <div ref={rootRef(p)} className={s.className} style={{ width: "100%" }} {...s.attrs}>
       <StyleTag css={s.css} />
-      <div className="lp-video" style={{ aspectRatio: (p.aspectRatio ?? "16/9").replace("/", " / "), borderRadius: p.radius || undefined }}>
+      <div className="lp-video" style={{ aspectRatio: safeAspectRatio(p.customAspectRatio || p.aspectRatio), borderRadius: p.radius || undefined }}>
         {info ? (
           <VideoPlayer
             kind={info.kind}
