@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import type { ReactElement } from "react";
 import { MediaField } from "@/components/admin/media/MediaField";
 import type { Device, MediaRef } from "@/lib/model/types";
-import type { ContentPosition } from "../blocks/advanced";
+import type { ContentPosition, TextStyle } from "../blocks/advanced";
 import type { ButtonColors } from "../blocks/content";
 import type { ComponentNode } from "@/lib/serialization/page-data";
 import { BLOCKS, type BlockType } from "../schema";
@@ -16,6 +16,7 @@ import { LandingShell, type PageLayoutOverrides } from "../site/LandingShell";
 import type { Appearance, Background, ResponsiveBox, VideoSource } from "../styles/types";
 import { useEditorContext } from "./context";
 import { ResponsiveField, type ResponsiveGroup } from "./fields/ResponsiveField";
+import { TextStyleField } from "./fields/TextStyleField";
 import { AppearanceField, BackgroundField, ButtonColorsField, ContentPositionField, VideoSourceField, type AppearanceGroup } from "./fields/StyleFields";
 
 // ---------- Fábricas de campos ----------
@@ -506,7 +507,9 @@ export const puckConfig: Config = {
             iconImage: mediaField("Logo / icono personalizado (PNG)"),
             icon: { type: "select", label: "Icono del catálogo (si no hay logo)", options: ICON_OPTIONS },
             title: { type: "text", label: "Título" },
+            titleStyle: custom<TextStyle>("Estilo del título", (a) => <TextStyleField label="Estilo del título" {...a} />),
             text: { type: "textarea", label: "Texto" },
+            textStyle: custom<TextStyle>("Estilo del texto", (a) => <TextStyleField label="Estilo del texto" {...a} />),
             linkLabel: { type: "text", label: "Texto del enlace" },
             href: { type: "text", label: "Enlace" },
             background: colorText("Fondo de esta tarjeta (opcional)"),
@@ -522,19 +525,10 @@ export const puckConfig: Config = {
             { label: "Logo / icono", value: "icon" },
           ],
         },
+        contentAlign: select("Alineación del contenido", [["", "Del tema"], ["left", "Izquierda"], ["center", "Centro"], ["right", "Derecha"]]),
+        linkStyle: select("Mostrar el enlace como", [["link", "Texto con flecha"], ["button", "Botón"]]),
+        glass: toggle("Efecto vidrio (desenfoca el fondo)"),
         transparent: toggle("Tarjetas transparentes (sin fondo, borde ni sombra)"),
-        typography: {
-          type: "object",
-          label: "Textos de las tarjetas (vacío = tema)",
-          objectFields: {
-            titleSize: { type: "text", label: "Tamaño del título (p. ej. 22px)" },
-            titleSizeMobile: { type: "text", label: "Tamaño del título en mobile" },
-            titleWeight: select("Grosor del título", [["", "Del tema"], ["400", "Normal"], ["500", "Medio"], ["600", "Semi negrita"], ["700", "Negrita"], ["800", "Extra negrita"]]),
-            textSize: { type: "text", label: "Tamaño del texto (p. ej. 16px)" },
-            textSizeMobile: { type: "text", label: "Tamaño del texto en mobile" },
-            align: select("Alineación", [["", "Del tema"], ["left", "Izquierda"], ["center", "Centro"], ["right", "Derecha"]]),
-          },
-        },
         colors: {
           type: "object",
           label: "Colores de las tarjetas (vacío = tema)",
@@ -545,6 +539,8 @@ export const puckConfig: Config = {
             text: colorText("Texto"),
             link: colorText("Enlace"),
             iconBackground: colorText("Fondo del icono"),
+            buttonBackground: colorText("Fondo del botón"),
+            buttonText: colorText("Texto del botón"),
             iconColor: colorText("Color del icono (catálogo)"),
           },
         },

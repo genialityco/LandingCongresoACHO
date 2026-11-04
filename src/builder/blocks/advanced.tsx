@@ -1,7 +1,7 @@
-import { Fragment } from "react";
+import { Fragment, type CSSProperties } from "react";
 import type { Device, MediaRef } from "@/lib/model/types";
 import { Icon } from "../icons";
-import { anchorDecls, cssValue, MEDIA, responsiveCss, rule, wrapMedia } from "../styles/css";
+import { anchorDecls, cssValue, MEDIA, responsiveCss, rule } from "../styles/css";
 import type { Background } from "../styles/types";
 import { CarouselClient } from "./client/Carousel";
 import { CountdownClient } from "./client/Countdown";
@@ -219,14 +219,32 @@ export function GalleryBlock(p: GalleryProps) {
 }
 
 // ---------- Tarjetas / testimonios / estadísticas ----------
+/** Estilo individual de un texto (vacío = tema). */
+export type TextStyle = { color?: string; size?: string; align?: "left" | "center" | "right"; uppercase?: boolean };
+
+function textStyleCss(t?: TextStyle): CSSProperties | undefined {
+  if (!t) return undefined;
+  const style: CSSProperties = {
+    color: cssValue(t.color),
+    fontSize: cssValue(t.size),
+    textAlign: t.align,
+    textTransform: t.uppercase ? "uppercase" : undefined,
+  };
+  return Object.values(style).some((v) => v !== undefined) ? style : undefined;
+}
+
 export type CardsProps = BlockProps<{
-  items: { image: MediaRef | null; icon: string; iconImage?: MediaRef | null; title: string; text: string; linkLabel: string; href: string; background?: string }[];
+  items: { image: MediaRef | null; icon: string; iconImage?: MediaRef | null; title: string; text: string; linkLabel: string; href: string; background?: string; titleStyle?: TextStyle; textStyle?: TextStyle }[];
   /** Sin fondo, borde, sombra ni elevación al pasar el cursor. */
   transparent?: boolean;
-  /** Tipografía de las tarjetas (vacío = tema). Mobile hereda de desktop. */
-  typography?: { titleSize?: string; titleSizeMobile?: string; titleWeight?: string; textSize?: string; textSizeMobile?: string; align?: "left" | "center" | "right" };
+  /** Desenfoca el fondo detrás de la tarjeta (efecto vidrio). */
+  glass?: boolean;
+  /** Alineación del contenido de la tarjeta (icono, textos y botón). */
+  contentAlign?: "left" | "center" | "right";
+  /** El enlace se muestra como texto o como botón. */
+  linkStyle?: "link" | "button";
   /** Colores de las tarjetas (vacío = tema). */
-  colors?: { background?: string; border?: string; title?: string; text?: string; link?: string; iconBackground?: string; iconColor?: string };
+  colors?: { background?: string; border?: string; title?: string; text?: string; link?: string; iconBackground?: string; iconColor?: string; buttonBackground?: string; buttonText?: string };
   /** Heredado: antes solo se podía elegir una opción. */
   media?: "image" | "icon" | "none";
   /** Qué elementos visuales mostrar; se pueden combinar. */
@@ -240,7 +258,6 @@ export type CardsProps = BlockProps<{
 export function CardsBlock(p: CardsProps) {
   const base = getBlockStyle(p, { container: "grid" });
   const c0 = p.colors ?? {};
-  const t0 = p.typography ?? {};
   const s = {
     ...base,
     css:
@@ -249,17 +266,23 @@ export function CardsBlock(p: CardsProps) {
       rule(`${base.selector} .lp-card h3`, { color: c0.title }) +
       rule(`${base.selector} .lp-card-text`, { color: c0.text }) +
       rule(`${base.selector} .lp-card-link`, { color: c0.link }) +
+      rule(`${base.selector} .lp-card-button`, {
+        "--b-bg": c0.buttonBackground || "var(--lp-btn-primary-bg)",
+        "--b-color": c0.buttonText || "var(--lp-btn-primary-color)",
+        "--b-border": c0.buttonBackground || "var(--lp-btn-primary-border)",
+      }) +
+      (p.glass ? rule(`${base.selector} .lp-card`, { "backdrop-filter": "blur(10px)", "-webkit-backdrop-filter": "blur(10px)" }) : "") +
+      (p.contentAlign
+        ? rule(`${base.selector} .lp-card-body`, {
+            "text-align": p.contentAlign,
+            "align-items": p.contentAlign === "center" ? "center" : p.contentAlign === "right" ? "flex-end" : "flex-start",
+          })
+        : "") +
       rule(`${base.selector} .lp-card-icon`, { background: c0.iconBackground, color: c0.iconColor }) +
       (p.transparent
         ? rule(`${base.selector} .lp-card`, { background: "transparent", border: "0", "box-shadow": "none", transform: "none" }) +
           rule(`${base.selector} .lp-card-body`, { "padding-left": "0", "padding-right": "0" })
-        : "") +
-      rule(`${base.selector} .lp-card h3`, { "font-size": t0.titleSize, "font-weight": t0.titleWeight }) +
-      rule(`${base.selector} .lp-card-text`, { "font-size": t0.textSize }) +
-      (t0.align
-        ? rule(`${base.selector} .lp-card-body`, { "text-align": t0.align, "align-items": t0.align === "center" ? "center" : t0.align === "right" ? "flex-end" : "flex-start" })
-        : "") +
-      wrapMedia("mobile", rule(`${base.selector} .lp-card h3`, { "font-size": t0.titleSizeMobile }) + rule(`${base.selector} .lp-card-text`, { "font-size": t0.textSizeMobile })),
+        : ""),
   };
   return (
     <div ref={rootRef(p)} className={`lp-cards ${s.className}`} {...s.attrs}>
@@ -289,12 +312,18 @@ export function CardsBlock(p: CardsProps) {
                     )}
                   </span>
                 ) : null}
-                {c.title ? <h3>{c.title}</h3> : null}
-                {c.text ? <p className="lp-card-text">{c.text}</p> : null}
+                {c.title ? <h3 style={textStyleCss(c.titleStyle)}>{c.title}</h3> : null}
+                {c.text ? <p className="lp-card-text" style={textStyleCss(c.textStyle)}>{c.text}</p> : null}
                 {c.linkLabel ? (
-                  <a className="lp-card-link" {...linkProps(c.href)}>
-                    {c.linkLabel} →
-                  </a>
+                  p.linkStyle === "button" ? (
+                    <a className="lp-btn lp-btn-custom lp-card-button" {...linkProps(c.href)}>
+                      {c.linkLabel}
+                    </a>
+                  ) : (
+                    <a className="lp-card-link" {...linkProps(c.href)}>
+                      {c.linkLabel} →
+                    </a>
+                  )
                 ) : null}
               </div>
             ) : null}

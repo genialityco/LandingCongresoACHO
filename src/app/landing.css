@@ -101,6 +101,7 @@
 .lp-card-body { padding: 24px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
 .lp-card-icon { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--lp-color-accent) 14%, transparent); color: var(--lp-color-accent); }
 .lp-card-text { color: var(--lp-color-muted); }
+.lp-card-button { margin-top: auto; padding: 8px 22px; font-size: .85em; }
 .lp-card-link { margin-top: auto; color: var(--lp-color-accent); font-weight: 600; text-decoration: none; }
 .lp-testimonial { background: var(--lp-color-surface); border-radius: var(--lp-radius); padding: 28px; display: flex; flex-direction: column; gap: 18px; border: 1px solid var(--lp-color-border); }
 .lp-testimonial blockquote { font-size: 1.05em; }
