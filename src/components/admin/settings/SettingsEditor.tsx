@@ -231,6 +231,12 @@ function NavbarForm({ v, set }: { v: NavbarSettings; set: (v: NavbarSettings) =>
               <option value="secondary">Secundario</option>
               <option value="outline">Contorno</option>
             </NativeSelect>
+            <div className="w-28 shrink-0" title="Fondo propio (vacío = tema)">
+              <ColorInput value={b.background ?? ""} onChange={(x) => set({ ...v, buttons: v.buttons.map((y, k) => (k === i ? { ...y, background: x || undefined } : y)) })} />
+            </div>
+            <div className="w-28 shrink-0" title="Texto propio">
+              <ColorInput value={b.color ?? ""} onChange={(x) => set({ ...v, buttons: v.buttons.map((y, k) => (k === i ? { ...y, color: x || undefined } : y)) })} />
+            </div>
             <Button size="icon-sm" variant="ghost" aria-label="Eliminar" onClick={() => set({ ...v, buttons: v.buttons.filter((_, k) => k !== i) })}>
               <Trash2 />
             </Button>

@@ -57,6 +57,8 @@ export type NavLink = {
   label: string;
   href: string;
   newTab: boolean;
+  /** Se muestra subrayado cuando ningún otro enlace coincide con la sección actual. */
+  highlight?: boolean;
   children: { id: string; label: string; href: string; newTab: boolean }[];
 };
 
@@ -65,6 +67,9 @@ export type NavButton = {
   label: string;
   href: string;
   variant: "primary" | "secondary" | "outline";
+  /** Colores propios (vacío = los del tema para la variante). */
+  background?: string;
+  color?: string;
 };
 
 export type NavbarSettings = {

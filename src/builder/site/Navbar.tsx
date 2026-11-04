@@ -9,6 +9,14 @@ import { linkProps } from "../blocks/shared";
 export function Navbar({ settings: n, styleMode, editing }: { settings: NavbarSettings; styleMode: "solid" | "transparent"; editing?: boolean }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [location, setLocation] = useState({ path: "", hash: "" });
+
+  useEffect(() => {
+    const update = () => setLocation({ path: window.location.pathname, hash: window.location.hash });
+    update();
+    window.addEventListener("hashchange", update);
+    return () => window.removeEventListener("hashchange", update);
+  }, []);
 
   useEffect(() => {
     if (!n.sticky) return;
@@ -45,6 +53,10 @@ export function Navbar({ settings: n, styleMode, editing }: { settings: NavbarSe
     ...(editing && transparent && n.sticky ? { position: "absolute" } : {}),
   } as CSSProperties;
   const links = n.links ?? [];
+  // Enlace activo: el que coincide con la sección/página actual; si ninguno, el marcado como resaltado.
+  const matches = (href: string) => !!href && ((href.startsWith("#") && href === location.hash) || href === location.path);
+  const anyMatch = links.some((l) => matches(l.href));
+  const isActive = (l: (typeof links)[number]) => matches(l.href) || (!anyMatch && !!l.highlight);
   const close = () => setOpen(false);
 
   const mobileMenu = (
@@ -84,7 +96,13 @@ export function Navbar({ settings: n, styleMode, editing }: { settings: NavbarSe
       {n.buttons?.length ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 18 }}>
           {n.buttons.map((b) => (
-            <a key={b.id} className={`lp-btn lp-btn-${b.variant}`} {...linkProps(b.href)} onClick={close}>
+            <a
+              key={b.id}
+              className={`lp-btn ${b.background ? "lp-btn-custom" : `lp-btn-${b.variant}`}`}
+              style={b.background ? { ["--b-bg" as string]: b.background, ["--b-border" as string]: b.background, ["--b-color" as string]: b.color || "#ffffff" } : undefined}
+              {...linkProps(b.href)}
+              onClick={close}
+            >
               {b.label}
             </a>
           ))}
@@ -104,7 +122,12 @@ export function Navbar({ settings: n, styleMode, editing }: { settings: NavbarSe
         <ul className="lp-nav-links" style={{ gap: n.gap }}>
           {links.map((l) => (
             <li key={l.id}>
-              <a {...linkProps(l.href, l.newTab)} aria-haspopup={l.children?.length ? "true" : undefined}>
+              <a
+                {...linkProps(l.href, l.newTab)}
+                className={isActive(l) ? "is-active" : undefined}
+                aria-current={isActive(l) ? "page" : undefined}
+                aria-haspopup={l.children?.length ? "true" : undefined}
+              >
                 {l.label}
                 {l.children?.length ? <ChevronDown size={14} aria-hidden /> : null}
               </a>
@@ -122,7 +145,12 @@ export function Navbar({ settings: n, styleMode, editing }: { settings: NavbarSe
         </ul>
         <div className="lp-nav-actions">
           {(n.buttons ?? []).map((b) => (
-            <a key={b.id} className={`lp-btn lp-btn-${b.variant}`} style={{ padding: "10px 18px" }} {...linkProps(b.href)}>
+            <a
+              key={b.id}
+              className={`lp-btn ${b.background ? "lp-btn-custom" : `lp-btn-${b.variant}`}`}
+              style={{ padding: "10px 22px", ...(b.background ? { ["--b-bg" as string]: b.background, ["--b-border" as string]: b.background, ["--b-color" as string]: b.color || "#ffffff" } : {}) }}
+              {...linkProps(b.href)}
+            >
               {b.label}
             </a>
           ))}

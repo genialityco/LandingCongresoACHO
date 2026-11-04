@@ -67,6 +67,10 @@ export function NavLinksEditor({ value, onChange, allowChildren = true }: { valu
               onDown={() => set(i, { ...l, children: move(l.children, ci, 1) })}
             />
           ))}
+          <label className="flex items-center gap-1.5 pl-1 text-xs text-muted-foreground">
+            <input type="checkbox" checked={!!l.highlight} onChange={(e) => set(i, { ...l, highlight: e.target.checked || undefined })} />
+            Subrayado por defecto (enlace activo si ninguna sección coincide)
+          </label>
           {allowChildren ? (
             <Button size="xs" variant="ghost" onClick={() => set(i, { ...l, children: [...(l.children ?? []), { id: uid(), label: "Subenlace", href: "#", newTab: false }] })}>
               <Plus /> Submenú
