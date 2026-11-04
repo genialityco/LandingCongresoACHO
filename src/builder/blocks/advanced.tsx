@@ -220,8 +220,13 @@ export function GalleryBlock(p: GalleryProps) {
 
 // ---------- Tarjetas / testimonios / estadísticas ----------
 export type CardsProps = BlockProps<{
-  items: { image: MediaRef | null; icon: string; iconImage?: MediaRef | null; title: string; text: string; linkLabel: string; href: string }[];
-  media: "image" | "icon" | "none";
+  items: { image: MediaRef | null; icon: string; iconImage?: MediaRef | null; title: string; text: string; linkLabel: string; href: string; background?: string }[];
+  /** Colores de las tarjetas (vacío = tema). */
+  colors?: { background?: string; border?: string; title?: string; text?: string; link?: string; iconBackground?: string; iconColor?: string };
+  /** Heredado: antes solo se podía elegir una opción. */
+  media?: "image" | "icon" | "none";
+  /** Qué elementos visuales mostrar; se pueden combinar. */
+  show?: ("image" | "icon")[];
   /** Tamaño del icono en px (catálogo o PNG personalizado). */
   iconSize?: number;
   /** Recuadro de color detrás del icono. */
@@ -229,20 +234,33 @@ export type CardsProps = BlockProps<{
 }>;
 
 export function CardsBlock(p: CardsProps) {
-  const s = getBlockStyle(p, { container: "grid" });
+  const base = getBlockStyle(p, { container: "grid" });
+  const c0 = p.colors ?? {};
+  const s = {
+    ...base,
+    css:
+      base.css +
+      rule(`${base.selector} .lp-card`, { background: c0.background, "border-color": c0.border }) +
+      rule(`${base.selector} .lp-card h3`, { color: c0.title }) +
+      rule(`${base.selector} .lp-card-text`, { color: c0.text }) +
+      rule(`${base.selector} .lp-card-link`, { color: c0.link }) +
+      rule(`${base.selector} .lp-card-icon`, { background: c0.iconBackground, color: c0.iconColor }),
+  };
   return (
     <div ref={rootRef(p)} className={`lp-cards ${s.className}`} {...s.attrs}>
       <StyleTag css={s.css} />
       {(p.items ?? []).map((c, i) => {
-        const showImage = p.media === "image" && !!c.image?.url;
+        const show = p.show ?? (p.media === "image" ? ["image"] : p.media === "icon" || p.media === undefined ? ["icon"] : []);
+        // Cada elemento solo se dibuja si tiene contenido: lo vacío no deja espacio.
+        const showImage = show.includes("image") && !!c.image?.url;
         const customIcon = c.iconImage?.url ? c.iconImage : null;
-        const showIcon = p.media === "icon" && (!!customIcon || !!c.icon);
+        const showIcon = show.includes("icon") && (!!customIcon || !!c.icon);
         const iconSize = Math.max(16, Math.min(160, Number(p.iconSize) || 24));
         const iconBox = p.iconBackground === false ? { background: "transparent", width: "auto", height: "auto", borderRadius: 0 } : { width: Math.round(iconSize * 2), height: Math.round(iconSize * 2) };
         // Sin icono, título, texto ni enlace no se dibuja el cuerpo: la tarjeta es solo la imagen.
         const hasBody = showIcon || !!c.title || !!c.text || !!c.linkLabel;
         return (
-          <article key={i} className={`lp-card${hasBody ? "" : " lp-card-image-only"}`}>
+          <article key={i} className={`lp-card${hasBody ? "" : " lp-card-image-only"}`} style={c.background ? { background: cssValue(c.background) } : undefined}>
             {showImage ? <Img media={c.image} alt={c.image?.alt ?? c.title ?? ""} className="lp-card-media" /> : null}
             {hasBody ? (
               <div className="lp-card-body">
