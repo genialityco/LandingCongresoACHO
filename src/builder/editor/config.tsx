@@ -522,6 +522,19 @@ export const puckConfig: Config = {
             { label: "Logo / icono", value: "icon" },
           ],
         },
+        transparent: toggle("Tarjetas transparentes (sin fondo, borde ni sombra)"),
+        typography: {
+          type: "object",
+          label: "Textos de las tarjetas (vacío = tema)",
+          objectFields: {
+            titleSize: { type: "text", label: "Tamaño del título (p. ej. 22px)" },
+            titleSizeMobile: { type: "text", label: "Tamaño del título en mobile" },
+            titleWeight: select("Grosor del título", [["", "Del tema"], ["400", "Normal"], ["500", "Medio"], ["600", "Semi negrita"], ["700", "Negrita"], ["800", "Extra negrita"]]),
+            textSize: { type: "text", label: "Tamaño del texto (p. ej. 16px)" },
+            textSizeMobile: { type: "text", label: "Tamaño del texto en mobile" },
+            align: select("Alineación", [["", "Del tema"], ["left", "Izquierda"], ["center", "Centro"], ["right", "Derecha"]]),
+          },
+        },
         colors: {
           type: "object",
           label: "Colores de las tarjetas (vacío = tema)",
