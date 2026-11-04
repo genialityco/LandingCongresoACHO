@@ -173,6 +173,9 @@ export function ResponsiveField({
 
       {has("flex") ? (
         <Section title="Distribución de hijos">
+          <p className="text-[10px] text-muted-foreground">
+            En una <strong>Fila</strong> (horizontal), «Alinear» mueve los hijos en vertical. En una <strong>Columna</strong> (vertical), «Justificar» es vertical y «Alinear» es horizontal.
+          </p>
           <Row label="Separación" inherited={!isSet("gap")}>
             <LengthInput value={cur.gap} placeholder={ph("gap")} onChange={(x) => set("gap", x)} readOnly={readOnly} units={["px", "rem", "%"]} ariaLabel="Separación" />
           </Row>

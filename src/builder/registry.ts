@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import type { BlockType } from "./schema";
-import { CardsBlock, CarouselBlock, CtaBlock, FaqBlock, FormBlock, GalleryBlock, HeroBlock, OverlayContainerBlock, OverlayLayerBlock, PromoBannerBlock, StatsBlock, TestimonialsBlock } from "./blocks/advanced";
+import { CardsBlock, CarouselBlock, CtaBlock, FaqBlock, FormBlock, GalleryBlock, HeroBlock, OverlayContainerBlock, OverlayLayerBlock, PromoBannerBlock, StatsBlock, CountdownBlock, TestimonialsBlock } from "./blocks/advanced";
 import { ButtonBlock, HeadingBlock, IconBlock, ImageBlock, LinkBlock, ListBlock, ParagraphBlock, RichTextBlock, SubtitleBlock, VideoBlock } from "./blocks/content";
 import { ColumnBlock, ContainerBlock, DividerBlock, GridBlock, RowBlock, SectionBlock, SpacerBlock } from "./blocks/structure";
 
@@ -39,6 +39,7 @@ export const REGISTRY: Record<Exclude<BlockType, "SharedBlock">, ComponentType<a
   CTA: CtaBlock,
   FAQ: FaqBlock,
   PromoBanner: PromoBannerBlock,
+  Countdown: CountdownBlock,
   OverlayContainer: OverlayContainerBlock,
   OverlayLayer: OverlayLayerBlock,
 };

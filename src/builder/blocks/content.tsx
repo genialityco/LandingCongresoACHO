@@ -79,8 +79,23 @@ export type ImageProps = BlockProps<{
   priority: boolean;
 }>;
 
+/** "Texto: centro/derecha" en una imagen también alinea la imagen (y el bloque) en su columna. */
+const IMAGE_ALIGN = {
+  left: { "align-items": "flex-start", "align-self": "flex-start", "margin-left": "0", "margin-right": "auto" },
+  center: { "align-items": "center", "align-self": "center", "margin-left": "auto", "margin-right": "auto" },
+  right: { "align-items": "flex-end", "align-self": "flex-end", "margin-left": "auto", "margin-right": "0" },
+} as const;
+
 export function ImageBlock(p: ImageProps) {
-  const s = getBlockStyle(p);
+  const base = getBlockStyle(p);
+  const s = {
+    ...base,
+    css:
+      base.css +
+      responsiveCss(base.selector, p.layout, (b) => (b.textAlign && b.textAlign !== "justify" && !b.align ? IMAGE_ALIGN[b.textAlign] : {})) +
+      // Con alineación, la imagen conserva su tamaño natural (hasta el 100 %) en vez de estirarse.
+      responsiveCss(`${base.selector} img`, p.layout, (b) => (b.align && b.align !== "stretch") || (b.textAlign && b.textAlign !== "justify") ? { width: "auto", "max-width": "100%" } : {}),
+  };
   const imgStyle: CSSProperties = {
     aspectRatio: p.aspectRatio && p.aspectRatio !== "auto" ? p.aspectRatio.replace("/", " / ") : undefined,
     objectFit: p.fit ?? "cover",

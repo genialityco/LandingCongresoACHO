@@ -42,6 +42,7 @@ export const BLOCKS = {
   CTA: { label: "CTA", category: "avanzados" },
   FAQ: { label: "FAQ", category: "avanzados" },
   PromoBanner: { label: "Banner promocional", category: "avanzados" },
+  Countdown: { label: "Contador", category: "avanzados" },
   OverlayContainer: { label: "Contenedor con superposición", category: "avanzados", slots: ["layers"] },
   OverlayLayer: { label: "Capa superpuesta", category: "avanzados", slots: ["content"] },
   SharedBlock: { label: "Bloque compartido", category: "avanzados" },

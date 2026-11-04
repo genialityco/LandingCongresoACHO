@@ -4,6 +4,7 @@ import { Icon } from "../icons";
 import { anchorDecls, cssValue, MEDIA, responsiveCss, rule } from "../styles/css";
 import type { Background } from "../styles/types";
 import { CarouselClient } from "./client/Carousel";
+import { CountdownClient } from "./client/Countdown";
 import { FormClient, type FormFieldDef } from "./client/Form";
 import { GalleryClient } from "./client/Gallery";
 import { Dismissible } from "./client/Misc";
@@ -219,8 +220,12 @@ export function GalleryBlock(p: GalleryProps) {
 
 // ---------- Tarjetas / testimonios / estadísticas ----------
 export type CardsProps = BlockProps<{
-  items: { image: MediaRef | null; icon: string; title: string; text: string; linkLabel: string; href: string }[];
+  items: { image: MediaRef | null; icon: string; iconImage?: MediaRef | null; title: string; text: string; linkLabel: string; href: string }[];
   media: "image" | "icon" | "none";
+  /** Tamaño del icono en px (catálogo o PNG personalizado). */
+  iconSize?: number;
+  /** Recuadro de color detrás del icono. */
+  iconBackground?: boolean;
 }>;
 
 export function CardsBlock(p: CardsProps) {
@@ -228,25 +233,41 @@ export function CardsBlock(p: CardsProps) {
   return (
     <div ref={rootRef(p)} className={`lp-cards ${s.className}`} {...s.attrs}>
       <StyleTag css={s.css} />
-      {(p.items ?? []).map((c, i) => (
-        <article key={i} className="lp-card">
-          {p.media === "image" && c.image?.url ? <Img media={c.image} alt={c.image.alt ?? ""} className="lp-card-media" /> : null}
-          <div className="lp-card-body">
-            {p.media === "icon" && c.icon ? (
-              <span className="lp-card-icon">
-                <Icon name={c.icon} size={24} />
-              </span>
+      {(p.items ?? []).map((c, i) => {
+        const showImage = p.media === "image" && !!c.image?.url;
+        const customIcon = c.iconImage?.url ? c.iconImage : null;
+        const showIcon = p.media === "icon" && (!!customIcon || !!c.icon);
+        const iconSize = Math.max(16, Math.min(160, Number(p.iconSize) || 24));
+        const iconBox = p.iconBackground === false ? { background: "transparent", width: "auto", height: "auto", borderRadius: 0 } : { width: Math.round(iconSize * 2), height: Math.round(iconSize * 2) };
+        // Sin icono, título, texto ni enlace no se dibuja el cuerpo: la tarjeta es solo la imagen.
+        const hasBody = showIcon || !!c.title || !!c.text || !!c.linkLabel;
+        return (
+          <article key={i} className={`lp-card${hasBody ? "" : " lp-card-image-only"}`}>
+            {showImage ? <Img media={c.image} alt={c.image?.alt ?? c.title ?? ""} className="lp-card-media" /> : null}
+            {hasBody ? (
+              <div className="lp-card-body">
+                {showIcon ? (
+                  <span className="lp-card-icon" style={iconBox}>
+                    {customIcon ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={customIcon.url} alt={customIcon.alt ?? ""} width={iconSize} height={iconSize} loading="lazy" style={{ width: iconSize, height: iconSize, objectFit: "contain" }} />
+                    ) : (
+                      <Icon name={c.icon} size={iconSize} />
+                    )}
+                  </span>
+                ) : null}
+                {c.title ? <h3>{c.title}</h3> : null}
+                {c.text ? <p className="lp-card-text">{c.text}</p> : null}
+                {c.linkLabel ? (
+                  <a className="lp-card-link" {...linkProps(c.href)}>
+                    {c.linkLabel} →
+                  </a>
+                ) : null}
+              </div>
             ) : null}
-            <h3>{c.title}</h3>
-            {c.text ? <p className="lp-card-text">{c.text}</p> : null}
-            {c.linkLabel ? (
-              <a className="lp-card-link" {...linkProps(c.href)}>
-                {c.linkLabel} →
-              </a>
-            ) : null}
-          </div>
-        </article>
-      ))}
+          </article>
+        );
+      })}
     </div>
   );
 }
@@ -380,6 +401,44 @@ export function PromoBannerBlock(p: PromoBannerProps) {
   return (
     <div ref={rootRef(p)} className={`lp-promo ${s.className}`} role="region" aria-label="Promoción" {...s.attrs}>
       {body}
+    </div>
+  );
+}
+
+// ---------- Contador ----------
+export type CountdownProps = BlockProps<{
+  /** Fecha objetivo en ISO (UTC). */
+  target: string;
+  size: "small" | "medium" | "large";
+  variant: "boxes" | "plain";
+  showDays: boolean;
+  showSeconds: boolean;
+  labels: { days: string; hours: string; minutes: string; seconds: string };
+  finishedText: string;
+  numberColor: string;
+  labelColor: string;
+  boxColor: string;
+}>;
+
+export function CountdownBlock(p: CountdownProps) {
+  const s = getBlockStyle(p);
+  const css =
+    s.css +
+    rule(s.selector, {
+      "--lp-cd-number": p.numberColor,
+      "--lp-cd-label": p.labelColor,
+      "--lp-cd-box": p.boxColor,
+    });
+  return (
+    <div ref={rootRef(p)} className={`lp-countdown is-${p.size ?? "medium"} is-${p.variant ?? "boxes"} ${s.className}`} {...s.attrs}>
+      <StyleTag css={css} />
+      <CountdownClient
+        targetIso={p.target ?? ""}
+        labels={{ days: p.labels?.days || "Días", hours: p.labels?.hours || "Horas", minutes: p.labels?.minutes || "Minutos", seconds: p.labels?.seconds || "Segundos" }}
+        showDays={p.showDays !== false}
+        showSeconds={p.showSeconds !== false}
+        finishedText={p.finishedText ?? ""}
+      />
     </div>
   );
 }

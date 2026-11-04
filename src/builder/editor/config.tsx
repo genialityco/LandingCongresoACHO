@@ -89,6 +89,42 @@ function block(type: Exclude<BlockType, "SharedBlock">, cfg: { fields: Record<st
 
 const DEFAULT_OVERLAY = { enabled: true, color: "#000000", opacity: 0.5 };
 
+// ---------- Fecha del contador ----------
+/** Muestra la fecha en hora local del editor y la guarda en ISO (UTC). */
+function toLocalInput(iso?: string) {
+  const d = iso ? new Date(iso) : null;
+  if (!d || Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+const dateTimeField = (label: string) =>
+  custom<string>(label, ({ value, onChange, readOnly }) => (
+    <div className="space-y-1">
+      <div className="text-xs font-semibold">{label}</div>
+      <input
+        type="datetime-local"
+        className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+        value={toLocalInput(value)}
+        readOnly={readOnly}
+        onChange={(e) => onChange(e.target.value ? new Date(e.target.value).toISOString() : "")}
+        aria-label={label}
+      />
+      <p className="text-[11px] text-muted-foreground">Hora de tu zona ({Intl.DateTimeFormat().resolvedOptions().timeZone}). Los visitantes ven la cuenta correcta en su propia zona.</p>
+    </div>
+  ));
+
+const colorText = (label: string) =>
+  custom<string>(label, ({ value, onChange, readOnly }) => (
+    <div className="space-y-1">
+      <div className="text-xs font-semibold">{label}</div>
+      <div className="flex gap-1">
+        <input type="color" className="h-8 w-9 rounded border p-0.5" value={/^#[0-9a-f]{6}$/i.test(value ?? "") ? value : "#000000"} disabled={readOnly} onChange={(e) => onChange(e.target.value)} aria-label={label} />
+        <input className="h-8 w-full rounded-md border px-2 font-mono text-xs" placeholder="del tema" value={value ?? ""} readOnly={readOnly} onChange={(e) => onChange(e.target.value)} />
+      </div>
+    </div>
+  ));
+
 // ---------- Bloque compartido (vinculado) ----------
 function SharedBlockPreview({ blockId }: { blockId?: string }) {
   const { savedBlocks } = useEditorContext();
@@ -150,7 +186,7 @@ export const puckConfig: Config = {
     contenido: { title: "Contenido", components: ["Heading", "Subtitle", "Paragraph", "RichText", "Image", "Video", "Button", "Icon", "List", "Link"] },
     avanzados: {
       title: "Avanzados",
-      components: ["HeroImage", "HeroVideo", "Carousel", "Gallery", "Cards", "Testimonials", "Stats", "Form", "CTA", "FAQ", "PromoBanner", "OverlayContainer", "OverlayLayer", "SharedBlock"],
+      components: ["HeroImage", "HeroVideo", "Carousel", "Gallery", "Cards", "Testimonials", "Stats", "Form", "CTA", "FAQ", "PromoBanner", "Countdown", "OverlayContainer", "OverlayLayer", "SharedBlock"],
     },
   },
   root: {
@@ -468,15 +504,18 @@ export const puckConfig: Config = {
           arrayFields: {
             image: mediaField("Imagen"),
             icon: { type: "select", label: "Icono", options: ICON_OPTIONS },
+            iconImage: mediaField("Icono personalizado (PNG, reemplaza al del catálogo)"),
             title: { type: "text", label: "Título" },
             text: { type: "textarea", label: "Texto" },
             linkLabel: { type: "text", label: "Texto del enlace" },
             href: { type: "text", label: "Enlace" },
           },
           getItemSummary: (c) => c.title || "Tarjeta",
-          defaultItemProps: { image: null, icon: "star", title: "Título", text: "Descripción breve.", linkLabel: "", href: "" },
+          defaultItemProps: { image: null, icon: "star", iconImage: null, title: "Título", text: "Descripción breve.", linkLabel: "", href: "" },
         },
         media: select("Mostrar", [["icon", "Icono"], ["image", "Imagen"], ["none", "Solo texto"]]),
+        iconSize: { type: "number", label: "Tamaño del icono (px)", min: 16, max: 160 },
+        iconBackground: toggle("Recuadro de fondo detrás del icono"),
         layout: layoutField(["grid", "spacing", "size", "visibility"]),
         appearance: appearanceField(["animation", "advanced"]),
       },
@@ -487,6 +526,8 @@ export const puckConfig: Config = {
           { icon: "users", title: "Beneficio tres", text: "Descripción breve." },
         ],
         media: "icon",
+        iconSize: 24,
+        iconBackground: true,
         layout: { desktop: { columns: 3, gap: "24px" }, tablet: { columns: 2 }, mobile: { columns: 1 } },
         appearance: {},
       },
@@ -579,6 +620,40 @@ export const puckConfig: Config = {
         appearance: appearanceField(["typography", "border", "animation", "advanced"]),
       },
       defaultProps: { badge: "Nuevo", text: "Mensaje promocional", linkLabel: "Ver más", href: "#", background: "#2563eb", textColor: "#ffffff", dismissible: false, layout: {}, appearance: {} },
+    }),
+    Countdown: block("Countdown", {
+      fields: {
+        target: dateTimeField("Fecha y hora objetivo"),
+        size: select("Tamaño", [["small", "Pequeño"], ["medium", "Mediano"], ["large", "Grande"]]),
+        variant: select("Estilo", [["boxes", "Con recuadros"], ["plain", "Solo números"]]),
+        showDays: toggle("Mostrar días"),
+        showSeconds: toggle("Mostrar segundos"),
+        labels: {
+          type: "object",
+          label: "Etiquetas",
+          objectFields: { days: { type: "text", label: "Días" }, hours: { type: "text", label: "Horas" }, minutes: { type: "text", label: "Minutos" }, seconds: { type: "text", label: "Segundos" } },
+        },
+        finishedText: text("Texto al terminar (vacío = ocultar)"),
+        numberColor: colorText("Color de los números"),
+        labelColor: colorText("Color de las etiquetas"),
+        boxColor: colorText("Color de los recuadros"),
+        layout: layoutField(["size", "spacing", "align", "visibility"]),
+        appearance: appearanceField(["animation", "advanced"]),
+      },
+      defaultProps: {
+        target: new Date(Date.now() + 30 * 86_400_000).toISOString(),
+        size: "medium",
+        variant: "boxes",
+        showDays: true,
+        showSeconds: true,
+        labels: { days: "Días", hours: "Horas", minutes: "Minutos", seconds: "Segundos" },
+        finishedText: "¡El evento ya comenzó!",
+        numberColor: "",
+        labelColor: "",
+        boxColor: "",
+        layout: {},
+        appearance: {},
+      },
     }),
     SharedBlock: {
       label: BLOCKS.SharedBlock.label,

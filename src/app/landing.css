@@ -97,6 +97,7 @@
 .lp-card { background: var(--lp-color-surface); border: 1px solid var(--lp-color-border); border-radius: var(--lp-radius); overflow: hidden; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
 .lp-card:hover { transform: translateY(-4px); box-shadow: var(--lp-shadow); }
 .lp-card-media { aspect-ratio: 16 / 10; width: 100%; object-fit: cover; }
+.lp-card-image-only .lp-card-media { aspect-ratio: auto; height: 100%; }
 .lp-card-body { padding: 24px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
 .lp-card-icon { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--lp-color-accent) 14%, transparent); color: var(--lp-color-accent); }
 .lp-card-text { color: var(--lp-color-muted); }
@@ -143,6 +144,16 @@
 .lp-promo { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 12px 20px; flex-wrap: wrap; position: relative; text-align: center; }
 .lp-promo-badge { padding: 4px 10px; border-radius: 999px; font-size: .8em; font-weight: 700; background: rgba(255,255,255,.2); }
 .lp-promo-close { position: absolute; right: 12px; top: 50%; translate: 0 -50%; background: transparent; border: 0; color: inherit; cursor: pointer; }
+
+.lp-countdown { width: 100%; display: flex; justify-content: center; --lp-cd-size: 2.5rem; }
+.lp-countdown.is-small { --lp-cd-size: 1.5rem; }
+.lp-countdown.is-large { --lp-cd-size: clamp(2.75rem, 7vw, 5rem); }
+.lp-countdown-units { display: flex; flex-wrap: wrap; justify-content: inherit; gap: calc(var(--lp-cd-size) * .35); }
+.lp-countdown-unit { display: flex; flex-direction: column; align-items: center; min-width: calc(var(--lp-cd-size) * 1.9); }
+.lp-countdown.is-boxes .lp-countdown-unit { background: var(--lp-cd-box, var(--lp-color-surface)); border-radius: var(--lp-radius); padding: calc(var(--lp-cd-size) * .3) calc(var(--lp-cd-size) * .35); }
+.lp-countdown-value { font-family: var(--lp-font-secondary); font-size: var(--lp-cd-size); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; color: var(--lp-cd-number, var(--lp-color-accent)); }
+.lp-countdown-label { margin-top: .4em; font-size: max(.7rem, calc(var(--lp-cd-size) * .28)); text-transform: uppercase; letter-spacing: .06em; color: var(--lp-cd-label, var(--lp-color-muted)); }
+.lp-countdown-finished { font-weight: 600; font-size: calc(var(--lp-cd-size) * .6); text-align: center; }
 
 /* ---------- Navegación ---------- */
 .lp-nav { width: 100%; z-index: 50; font-family: var(--lp-nav-font); }
