@@ -1,0 +1,201 @@
+rules_version = '2';
+
+// Modelo de permisos:
+//   admin  -> control completo (ajustes globales, usuarios, eliminaciones).
+//   editor -> crea y edita borradores; publica solo si config/permissions.editorsCanPublish == true.
+//   viewer -> lectura y previsualización de borradores.
+// El rol se lee SIEMPRE de los custom claims del token (asignados con Admin SDK),
+// nunca de datos enviados por el navegador.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Helpers ----------
+    function signedIn() {
+      return request.auth != null;
+    }
+    function role() {
+      return signedIn() ? request.auth.token.get('role', '') : '';
+    }
+    function isAdmin() {
+      return role() == 'admin';
+    }
+    function canEdit() {
+      return role() in ['admin', 'editor'];
+    }
+    function isStaff() {
+      return role() in ['admin', 'editor', 'viewer'];
+    }
+    function editorsCanPublish() {
+      let p = /databases/$(database)/documents/config/permissions;
+      return exists(p) && get(p).data.get('editorsCanPublish', false) == true;
+    }
+    function canPublish() {
+      return isAdmin() || (role() == 'editor' && editorsCanPublish());
+    }
+    function isValidSlug(s) {
+      return s is string && s.size() >= 1 && s.size() <= 80
+        && s.matches('^[a-z0-9]+(-[a-z0-9]+)*$')
+        && !(s in ['admin', 'api', 'preview', '_next', 'login']);
+    }
+    function changed(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasAny(keys);
+    }
+    function isSerializedChunk() {
+      return request.resource.data.keys().hasOnly(['index', 'json'])
+        && request.resource.data.index is int
+        && request.resource.data.json is string;
+    }
+
+    // ---------- Páginas (privado) ----------
+    function validPage() {
+      let d = request.resource.data;
+      return d.keys().hasAll(['schemaVersion', 'name', 'slug', 'status', 'createdAt', 'updatedAt',
+                              'createdBy', 'updatedBy', 'seo'])
+        && d.schemaVersion is int
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 120
+        && isValidSlug(d.slug)
+        && d.status in ['draft', 'published', 'unpublished']
+        && d.seo is map
+        && d.updatedBy == request.auth.uid;
+    }
+
+    match /pages/{pageId} {
+      allow read: if isStaff();
+      allow create: if canEdit() && validPage()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.status == 'draft'
+        && request.resource.data.get('publishedVersionId', null) == null;
+      allow update: if canEdit() && validPage()
+        && !changed(['createdBy', 'createdAt'])
+        && (canPublish() || !changed(['status', 'publishedVersionId', 'publishedSlug', 'publishedAt']));
+      allow delete: if isAdmin();
+
+      // Borrador: un único documento "current" con número de revisión.
+      // La revisión debe incrementarse exactamente en 1: protege contra sobrescrituras
+      // de un cliente que trabaja sobre una versión antigua.
+      match /draft/{docId} {
+        allow read: if isStaff();
+        allow create: if canEdit() && docId == 'current'
+          && request.resource.data.revision == 1
+          && request.resource.data.updatedBy == request.auth.uid;
+        allow update: if canEdit() && docId == 'current'
+          && request.resource.data.revision == resource.data.revision + 1
+          && request.resource.data.updatedBy == request.auth.uid;
+        allow delete: if isAdmin();
+
+        match /chunks/{chunkId} {
+          allow read: if isStaff();
+          allow create, update: if canEdit() && isSerializedChunk();
+          allow delete: if canEdit();
+        }
+      }
+
+      // Historial de versiones: inmutable.
+      match /versions/{versionId} {
+        allow read: if isStaff();
+        allow create: if canEdit()
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.kind in ['publish', 'manual', 'backup']
+          && (request.resource.data.kind != 'publish' || canPublish());
+        allow update: if false;
+        allow delete: if isAdmin();
+
+        match /chunks/{chunkId} {
+          allow read: if isStaff();
+          allow create: if canEdit() && isSerializedChunk();
+          allow update: if false;
+          allow delete: if isAdmin();
+        }
+      }
+    }
+
+    // ---------- Páginas publicadas (público) ----------
+    match /publishedPages/{slug} {
+      allow read: if true;
+      allow create: if canPublish() && isValidSlug(slug)
+        && request.resource.data.slug == slug
+        && request.resource.data.pageId is string
+        && request.resource.data.versionId is string;
+      // Un slug publicado no puede ser "robado" por otra página.
+      allow update: if canPublish()
+        && request.resource.data.slug == slug
+        && request.resource.data.pageId == resource.data.pageId;
+      allow delete: if canPublish();
+
+      match /chunks/{chunkId} {
+        allow read: if true;
+        allow create, update: if canPublish() && isSerializedChunk();
+        allow delete: if canPublish();
+      }
+    }
+
+    // ---------- Multimedia ----------
+    match /media/{mediaId} {
+      allow read: if isStaff();
+      allow create: if canEdit()
+        && request.resource.data.uploadedBy == request.auth.uid
+        && request.resource.data.path is string
+        && request.resource.data.mime is string
+        && request.resource.data.size is int
+        && request.resource.data.kind in ['image', 'video', 'document'];
+      allow update: if canEdit() && !changed(['uploadedBy', 'createdAt']);
+      allow delete: if isAdmin() || (canEdit() && resource.data.uploadedBy == request.auth.uid);
+    }
+
+    // ---------- Ajustes globales ----------
+    // Publicados (lectura pública) y borradores (solo staff).
+    function isSettingsKey(key) {
+      return key in ['theme', 'navbar', 'sidebar', 'footer', 'site'];
+    }
+    match /globalSettings/{key} {
+      allow read: if true;
+      allow write: if isSettingsKey(key) && (key == 'site' ? isAdmin() : canPublish());
+    }
+    match /globalSettingsDrafts/{key} {
+      allow read: if isStaff();
+      allow write: if isSettingsKey(key) && (key == 'site' ? isAdmin() : canEdit());
+    }
+
+    // ---------- Plantillas y bloques ----------
+    match /templates/{templateId} {
+      allow read: if isStaff();
+      allow create: if canEdit() && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.json is string;
+      allow update: if canEdit() && !changed(['createdBy', 'builtIn']);
+      allow delete: if isAdmin()
+        || (canEdit() && resource.data.createdBy == request.auth.uid && resource.data.get('builtIn', false) == false);
+    }
+    match /savedBlocks/{blockId} {
+      allow read: if isStaff();
+      allow create: if canEdit() && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.json is string;
+      allow update: if canEdit() && !changed(['createdBy']);
+      allow delete: if canEdit();
+    }
+
+    // ---------- Usuarios y permisos ----------
+    // users/{uid} es un espejo informativo escrito por el servidor (Admin SDK).
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if false;
+    }
+    match /config/{docId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() && docId == 'permissions'
+        && request.resource.data.keys().hasOnly(['editorsCanPublish', 'updatedAt', 'updatedBy'])
+        && request.resource.data.editorsCanPublish is bool;
+    }
+
+    // ---------- Formularios públicos ----------
+    match /formSubmissions/{submissionId} {
+      allow create: if request.resource.data.keys().hasOnly(['pageSlug', 'formId', 'fields', 'createdAt'])
+        && request.resource.data.pageSlug is string && request.resource.data.pageSlug.size() <= 80
+        && request.resource.data.formId is string && request.resource.data.formId.size() <= 80
+        && request.resource.data.fields is map && request.resource.data.fields.size() <= 20
+        && request.resource.data.createdAt == request.time;
+      allow read: if isStaff();
+      allow delete: if isAdmin();
+      allow update: if false;
+    }
+  }
+}
