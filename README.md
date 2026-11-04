@@ -16,6 +16,26 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### Firebase
+
+The local emulator environment uses `NEXT_PUBLIC_USE_EMULATORS=true`. Production deployments
+must set it to `false` (or omit it) and provide these public Firebase web-app variables in the
+hosting provider:
+
+```text
+NEXT_PUBLIC_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_PROJECT_ID
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+NEXT_PUBLIC_USE_EMULATORS=false
+```
+
+Never deploy the local `.env.local` unchanged: emulator mode points the server to
+`127.0.0.1:8080`, which is not the deployed Firestore instance.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

@@ -32,3 +32,20 @@ export const EMULATOR_HOSTS = {
   firestore: { host: "127.0.0.1", port: 8080 },
   storage: { host: "127.0.0.1", port: 9199 },
 };
+
+if (!USE_EMULATORS) {
+  const missing = [
+    ["NEXT_PUBLIC_FIREBASE_API_KEY", firebaseConfig.apiKey],
+    ["NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN", firebaseConfig.authDomain],
+    ["NEXT_PUBLIC_FIREBASE_PROJECT_ID", firebaseConfig.projectId],
+    ["NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET", firebaseConfig.storageBucket],
+    ["NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID", firebaseConfig.messagingSenderId],
+    ["NEXT_PUBLIC_FIREBASE_APP_ID", firebaseConfig.appId],
+  ]
+    .filter(([, value]) => typeof value !== "string" || !value.trim())
+    .map(([name]) => name);
+
+  if (missing.length > 0) {
+    throw new Error(`Faltan variables de configuración de Firebase: ${missing.join(", ")}`);
+  }
+}
