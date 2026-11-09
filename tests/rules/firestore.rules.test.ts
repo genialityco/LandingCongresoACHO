@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, it } from "vitest";
 import { assertFails, assertSucceeds, type RulesTestEnvironment } from "@firebase/rules-unit-testing";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc, writeBatch, type Firestore } from "firebase/firestore";
 import { createEnv, fsOf, UID, validPage } from "./helpers";
 
 let env: RulesTestEnvironment;
@@ -189,5 +189,42 @@ describe("suscriptores del newsletter", () => {
     await env.withSecurityRulesDisabled((c) => c.firestore().doc("suscritos/x@y.com").set({ email: "x@y.com" }));
     await assertFails(deleteDoc(doc(fsOf(env, "editor"), "suscritos/x@y.com")));
     await assertSucceeds(deleteDoc(doc(fsOf(env, "admin"), "suscritos/x@y.com")));
+  });
+});
+
+describe("inscritos al evento", () => {
+  function register(db: Firestore, email: string, telefono: string, extra: Record<string, unknown> = {}, phoneEmail = email) {
+    const batch = writeBatch(db);
+    batch.set(doc(db, "inscritos", email), { nombre: "Ana Pérez", email, telefono, source: "/inscripciones", createdAt: serverTimestamp(), ...extra });
+    batch.set(doc(db, "inscritosTelefonos", telefono), { email: phoneEmail, createdAt: serverTimestamp() });
+    return batch.commit();
+  }
+  it("se inscribe una vez; correo o teléfono repetidos se rechazan", async () => {
+    const db = fsOf(env, "anon");
+    await assertSucceeds(register(db, "ana@correo.com", "3155555555"));
+    await assertFails(register(db, "ana@correo.com", "3001112233"));
+    await assertFails(register(db, "otra@correo.com", "3155555555"));
+    await assertSucceeds(register(db, "otra@correo.com", "3001112233"));
+  });
+  it("no se puede escribir solo uno de los dos documentos ni cruzarlos", async () => {
+    const db = fsOf(env, "anon");
+    await assertFails(setDoc(doc(db, "inscritos/a@b.com"), { nombre: "Ana", email: "a@b.com", telefono: "3111111111", source: "/", createdAt: serverTimestamp() }));
+    await assertFails(setDoc(doc(db, "inscritosTelefonos/3111111111"), { email: "a@b.com", createdAt: serverTimestamp() }));
+    await assertFails(register(db, "a@b.com", "3111111111", {}, "otro@b.com"));
+  });
+  it("valida los campos", async () => {
+    const db = fsOf(env, "anon");
+    await assertFails(register(db, "no-es-correo", "3111111111"));
+    await assertFails(register(db, "a@b.com", "31-11"));
+    await assertFails(register(db, "a@b.com", "3111111111", { nombre: "" }));
+    await assertFails(register(db, "a@b.com", "3111111111", { admin: true }));
+  });
+  it("solo el staff lee y solo admin elimina", async () => {
+    await register(fsOf(env, "anon"), "x@y.com", "3222222222");
+    await assertFails(getDocs(collection(fsOf(env, "anon"), "inscritos")));
+    await assertSucceeds(getDocs(collection(fsOf(env, "viewer"), "inscritos")));
+    await assertFails(deleteDoc(doc(fsOf(env, "editor"), "inscritos/x@y.com")));
+    await assertSucceeds(deleteDoc(doc(fsOf(env, "admin"), "inscritos/x@y.com")));
+    await assertSucceeds(deleteDoc(doc(fsOf(env, "admin"), "inscritosTelefonos/3222222222")));
   });
 });

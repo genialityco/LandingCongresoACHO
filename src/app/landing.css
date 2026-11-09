@@ -144,6 +144,29 @@
 .lp-form input, .lp-form textarea, .lp-form select { font: inherit; padding: 12px 14px; border-radius: calc(var(--lp-radius) * .6); border: 1px solid var(--lp-color-border); background: var(--lp-color-bg); color: var(--lp-color-text); width: 100%; }
 .lp-form input:focus, .lp-form textarea:focus, .lp-form select:focus { outline: 2px solid var(--lp-color-accent); outline-offset: 1px; }
 .lp-form-status { padding: 12px 14px; border-radius: 8px; background: color-mix(in srgb, var(--lp-color-accent) 12%, transparent); }
+/* Inscripción al evento: imagen a la izquierda, formulario a la derecha; apilado en mobile. */
+.lp-registration { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); width: 100%; background: var(--lp-reg-card, #fff); border-radius: 22px; box-shadow: 0 10px 30px rgba(15, 23, 42, .12); }
+.lp-registration-media { min-width: 0; }
+.lp-registration-media img, .lp-registration-media .lp-img-empty { width: 100%; height: 100%; object-fit: cover; border-radius: 22px; }
+.lp-registration-body { display: flex; flex-direction: column; gap: 10px; padding: 40px 36px; min-width: 0; align-self: center; }
+.lp-registration-title { font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 700; line-height: 1.15; color: var(--lp-reg-title, #111827); }
+.lp-registration-text { color: var(--lp-reg-text, #111827); font-weight: 500; }
+.lp-registration-form { display: flex; flex-direction: column; gap: 16px; margin-top: 18px; position: relative; }
+.lp-registration-form label { display: flex; flex-direction: column; gap: 8px; font-size: .85em; font-weight: 700; color: var(--lp-reg-label, #111827); }
+.lp-registration-form input { font: inherit; font-weight: 400; font-size: .95rem; width: 100%; border: 0; border-radius: 6px; padding: 11px 14px; background: var(--lp-reg-input, #f3f4f6); color: #111827; }
+.lp-registration-form input::placeholder { color: #9ca3af; }
+.lp-registration-form input:focus { outline: 2px solid var(--lp-reg-btn, #b5c536); outline-offset: 1px; }
+.lp-registration-form button { font: inherit; font-weight: 700; text-transform: uppercase; border: 0; border-radius: 6px; padding: 12px 18px; margin-top: 8px; cursor: pointer; background: var(--lp-reg-btn, #b5c536); color: var(--lp-reg-btn-text, #111827); transition: filter .2s; }
+.lp-registration-form button:hover { filter: brightness(.95); }
+.lp-registration-form button:disabled { opacity: .7; cursor: wait; }
+.lp-registration-error { margin: 0; color: #b91c1c; font-size: .9em; font-weight: 600; }
+.lp-registration-status { margin: 18px 0 0; padding: 18px 20px; border-radius: 10px; font-weight: 700; font-size: 1.05em; color: var(--lp-reg-btn-text, #111827); background: color-mix(in srgb, var(--lp-reg-btn, #b5c536) 25%, transparent); }
+.lp-registration-status.is-already { background: color-mix(in srgb, #f59e0b 18%, transparent); }
+@media (max-width: 767px) {
+  .lp-registration { grid-template-columns: 1fr; }
+  .lp-registration-media img, .lp-registration-media .lp-img-empty { height: auto; }
+  .lp-registration-body { padding: 28px 20px 32px; }
+}
 .lp-cta { position: relative; overflow: hidden; border-radius: var(--lp-radius); padding: 72px 32px; color: #fff; display: flex; }
 .lp-cta-inner { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 18px; width: 100%; max-width: 760px; }
 .lp-cta-actions { display: flex; gap: 14px; flex-wrap: wrap; }

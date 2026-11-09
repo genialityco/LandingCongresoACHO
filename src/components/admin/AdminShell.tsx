@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
-import { Blocks, Mail, FileText, Image as ImageIcon, LayoutTemplate, Loader2, LogOut, Menu as MenuIcon, Palette, PanelLeft, PanelBottom, Settings2, ShieldCheck, Users } from "lucide-react";
+import { Blocks, ClipboardList, Mail, FileText, Image as ImageIcon, LayoutTemplate, Loader2, LogOut, Menu as MenuIcon, Palette, PanelLeft, PanelBottom, Settings2, ShieldCheck, Users } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { USE_EMULATORS } from "@/lib/firebase/config";
@@ -16,6 +16,7 @@ const NAV = [
   { href: "/admin/media", label: "Multimedia", icon: ImageIcon },
   { href: "/admin/templates", label: "Plantillas", icon: LayoutTemplate },
   { href: "/admin/blocks", label: "Bloques guardados", icon: Blocks },
+  { href: "/admin/inscritos", label: "Inscritos", icon: ClipboardList },
   { href: "/admin/suscritos", label: "Suscritos", icon: Mail },
   { section: "Ajustes globales" },
   { href: "/admin/settings/theme", label: "Tema y estilos", icon: Palette },

@@ -39,6 +39,7 @@ export const BLOCKS = {
   Testimonials: { label: "Testimonios", category: "avanzados" },
   Stats: { label: "Estadísticas", category: "avanzados" },
   Form: { label: "Formulario", category: "avanzados" },
+  Registration: { label: "Inscripción al evento", category: "avanzados" },
   CTA: { label: "CTA", category: "avanzados" },
   FAQ: { label: "FAQ", category: "avanzados" },
   PromoBanner: { label: "Banner promocional", category: "avanzados" },

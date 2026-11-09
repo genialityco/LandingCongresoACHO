@@ -7,6 +7,7 @@ import { CarouselClient } from "./client/Carousel";
 import { CountdownClient } from "./client/Countdown";
 import { FormClient, type FormFieldDef } from "./client/Form";
 import { GalleryClient } from "./client/Gallery";
+import { RegistrationForm, type RegistrationTexts } from "./client/Registration";
 import { Dismissible } from "./client/Misc";
 import {
   BackgroundLayer,
@@ -405,6 +406,46 @@ export function FormBlock(p: FormProps) {
         buttonClass={`lp-btn lp-btn-${p.buttonVariant ?? "primary"}`}
         editing={isEditing(p)}
       />
+    </div>
+  );
+}
+
+// ---------- Inscripción al evento (imagen + formulario con control de duplicados) ----------
+export type RegistrationProps = BlockProps<
+  RegistrationTexts & {
+    image: MediaRef | null;
+    imageAlt: string;
+    title: InlineText;
+    text: InlineText;
+    colors?: { card?: string; title?: string; text?: string; label?: string; input?: string; button?: string; buttonText?: string };
+  }
+>;
+
+export function RegistrationBlock(p: RegistrationProps) {
+  const s = getBlockStyle(p);
+  const c = p.colors ?? {};
+  const css =
+    s.css +
+    rule(s.selector, {
+      "--lp-reg-card": c.card,
+      "--lp-reg-title": c.title,
+      "--lp-reg-text": c.text,
+      "--lp-reg-label": c.label,
+      "--lp-reg-input": c.input,
+      "--lp-reg-btn": c.button,
+      "--lp-reg-btn-text": c.buttonText,
+    });
+  return (
+    <div ref={rootRef(p)} className={`lp-registration ${s.className}`} {...s.attrs}>
+      <StyleTag css={css} />
+      <div className="lp-registration-media">
+        <Img media={p.image} alt={p.imageAlt} />
+      </div>
+      <div className="lp-registration-body">
+        {p.title ? <h2 className="lp-registration-title">{p.title}</h2> : null}
+        {p.text ? <p className="lp-registration-text">{p.text}</p> : null}
+        <RegistrationForm texts={p} editing={isEditing(p)} />
+      </div>
     </div>
   );
 }
