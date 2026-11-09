@@ -5,6 +5,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import type { NavbarSettings } from "@/lib/model/settings";
 import { linkProps } from "../blocks/shared";
+import { Icon } from "../icons";
 
 export function Navbar({ settings: n, styleMode, editing }: { settings: NavbarSettings; styleMode: "solid" | "transparent"; editing?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -111,8 +112,40 @@ export function Navbar({ settings: n, styleMode, editing }: { settings: NavbarSe
     </div>
   );
 
+  const top = n.topBar;
+  const topBar = top?.enabled && (top.items.length || top.social.length) ? (
+    <div
+      className={`lp-topbar${top.hideOnMobile ? " hide-mobile" : ""}`}
+      style={{ background: top.colors.background, color: top.colors.text, fontSize: top.fontSize, ["--lp-topbar-icon" as string]: top.colors.icon }}
+    >
+      <div className="lp-topbar-inner" style={{ maxWidth: n.maxWidth, paddingTop: top.paddingY, paddingBottom: top.paddingY }}>
+        <ul className="lp-topbar-items">
+          {top.items.map((it) => {
+            const body = (
+              <>
+                {it.icon ? <Icon name={it.icon} size={16} /> : null}
+                <span>{it.text}</span>
+              </>
+            );
+            return <li key={it.id}>{it.href ? <a {...linkProps(it.href)}>{body}</a> : body}</li>;
+          })}
+        </ul>
+        {top.social.length ? (
+          <div className="lp-topbar-social">
+            {top.social.map((s) => (
+              <a key={s.id} {...linkProps(s.url, true)} aria-label={s.network} style={{ background: top.colors.socialBackground, color: top.colors.socialColor }}>
+                <Icon name={s.network} size={14} />
+              </a>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  ) : null;
+
   return (
     <header className={cls} style={style}>
+      {topBar}
       <nav className="lp-nav-inner" aria-label="Principal" style={{ maxWidth: n.maxWidth, paddingTop: n.paddingY, paddingBottom: n.paddingY }}>
         <Link href="/" className="lp-nav-brand" aria-label={n.logoText || "Inicio"}>
           {/* eslint-disable-next-line @next/next/no-img-element */}

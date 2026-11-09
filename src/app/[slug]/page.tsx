@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
-import { loadPublishedPage } from "@/lib/public/load";
+import { loadPublicSettings, loadPublishedPage } from "@/lib/public/load";
 import { PublishedPageView, publishedMetadata } from "@/lib/public/page-view";
 
 /**
@@ -23,6 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 async function Content({ params }: Props) {
   const { slug } = await params;
+  // La página de inicio solo vive en "/": su slug redirige ahí para no tener dos URLs.
+  if (slug === (await loadPublicSettings()).site.homeSlug) redirect("/");
   if (!(await loadPublishedPage(slug))) notFound();
   return <PublishedPageView slug={slug} />;
 }

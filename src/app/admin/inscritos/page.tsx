@@ -13,7 +13,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { REGISTRATION_PHONES_COLLECTION, REGISTRATIONS_COLLECTION } from "@/builder/blocks/client/Registration";
 import { db } from "@/lib/firebase/client";
 
-type Registration = { id: string; nombre: string; email: string; telefono: string; source?: string; createdAt?: unknown };
+type Registration = {
+  id: string;
+  nombre: string;
+  email: string;
+  telefono: string;
+  genero?: string;
+  edad?: number;
+  pais?: string;
+  profesion?: string;
+  ambito?: string;
+  source?: string;
+  createdAt?: unknown;
+};
 
 export default function RegistrationsPage() {
   const { can } = useAuth();
@@ -34,7 +46,7 @@ export default function RegistrationsPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (rows ?? []).filter((r) => !q || r.email.includes(q) || r.telefono.includes(q) || r.nombre.toLowerCase().includes(q));
+    return (rows ?? []).filter((r) => !q || [r.email, r.telefono, r.nombre, r.pais, r.profesion].some((v) => v?.toLowerCase().includes(q)));
   }, [rows, search]);
 
   function exportCsv() {
@@ -43,8 +55,8 @@ export default function RegistrationsPage() {
       return s ? new Date(s * 1000).toISOString() : "";
     };
     const csv = [
-      "nombre,telefono,email,origen,fecha",
-      ...filtered.map((r) => [r.nombre, r.telefono, r.email, r.source ?? "", toDate(r.createdAt)].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")),
+      "nombre,correo,telefono,genero,edad,pais,profesion,ambito,origen,fecha",
+      ...filtered.map((r) => [r.nombre, r.email, r.telefono, r.genero ?? "", r.edad ?? "", r.pais ?? "", r.profesion ?? "", r.ambito ?? "", r.source ?? "", toDate(r.createdAt)].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")),
     ].join("\n");
     const url = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
@@ -83,8 +95,13 @@ export default function RegistrationsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nombre</TableHead>
-                  <TableHead>Teléfono</TableHead>
                   <TableHead>Correo</TableHead>
+                  <TableHead>Teléfono</TableHead>
+                  <TableHead>Género</TableHead>
+                  <TableHead>Edad</TableHead>
+                  <TableHead>País</TableHead>
+                  <TableHead>Profesión</TableHead>
+                  <TableHead>Ámbito</TableHead>
                   <TableHead>Fecha</TableHead>
                   <TableHead />
                 </TableRow>
@@ -93,8 +110,13 @@ export default function RegistrationsPage() {
                 {filtered.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell className="font-medium">{r.nombre}</TableCell>
-                    <TableCell className="font-mono text-xs">{r.telefono}</TableCell>
                     <TableCell>{r.email}</TableCell>
+                    <TableCell className="font-mono text-xs">{r.telefono}</TableCell>
+                    <TableCell>{r.genero || "—"}</TableCell>
+                    <TableCell>{r.edad ?? "—"}</TableCell>
+                    <TableCell>{r.pais || "—"}</TableCell>
+                    <TableCell>{r.profesion || "—"}</TableCell>
+                    <TableCell className="max-w-56 whitespace-normal">{r.ambito || "—"}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{formatDate(r.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       {can.admin ? (

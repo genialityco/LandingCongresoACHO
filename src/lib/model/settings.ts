@@ -72,6 +72,17 @@ export type NavButton = {
   color?: string;
 };
 
+/** Franja delgada sobre la navbar: datos de contacto a la izquierda y redes a la derecha. */
+export type NavTopBar = {
+  enabled: boolean;
+  items: { id: string; icon: string; text: string; href: string }[];
+  social: { id: string; network: string; url: string }[];
+  colors: { background: string; text: string; icon: string; socialBackground: string; socialColor: string };
+  fontSize: string;
+  paddingY: string;
+  hideOnMobile: boolean;
+};
+
 export type NavbarSettings = {
   enabled: boolean;
   style: "solid" | "transparent";
@@ -92,6 +103,7 @@ export type NavbarSettings = {
   collapseAt: "tablet" | "mobile";
   mobileMenu: "dropdown" | "drawer";
   visibility: DeviceVisibility;
+  topBar: NavTopBar;
 };
 
 export type SidebarSettings = {
@@ -229,6 +241,15 @@ export const EMPTY_SETTINGS: GlobalSettings = {
     collapseAt: "tablet",
     mobileMenu: "drawer",
     visibility: allDevices,
+    topBar: {
+      enabled: false,
+      items: [],
+      social: [],
+      colors: { background: "#ffffff", text: "#111827", icon: "#111827", socialBackground: "#111827", socialColor: "#ffffff" },
+      fontSize: "14px",
+      paddingY: "8px",
+      hideOnMobile: false,
+    },
   },
   sidebar: {
     enabled: false,

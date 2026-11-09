@@ -195,7 +195,7 @@ describe("suscriptores del newsletter", () => {
 describe("inscritos al evento", () => {
   function register(db: Firestore, email: string, telefono: string, extra: Record<string, unknown> = {}, phoneEmail = email) {
     const batch = writeBatch(db);
-    batch.set(doc(db, "inscritos", email), { nombre: "Ana Pérez", email, telefono, source: "/inscripciones", createdAt: serverTimestamp(), ...extra });
+    batch.set(doc(db, "inscritos", email), { nombre: "Ana Pérez", email, telefono, genero: "Femenino", edad: 34, pais: "Colombia", profesion: "Médico(a) hematólogo(a)", ambito: "Académico / Investigación", source: "/formulario", createdAt: serverTimestamp(), ...extra });
     batch.set(doc(db, "inscritosTelefonos", telefono), { email: phoneEmail, createdAt: serverTimestamp() });
     return batch.commit();
   }
@@ -218,6 +218,8 @@ describe("inscritos al evento", () => {
     await assertFails(register(db, "a@b.com", "31-11"));
     await assertFails(register(db, "a@b.com", "3111111111", { nombre: "" }));
     await assertFails(register(db, "a@b.com", "3111111111", { admin: true }));
+    await assertFails(register(db, "a@b.com", "3111111111", { edad: "34" }));
+    await assertFails(register(db, "a@b.com", "3111111111", { pais: "x".repeat(121) }));
   });
   it("solo el staff lee y solo admin elimina", async () => {
     await register(fsOf(env, "anon"), "x@y.com", "3222222222");

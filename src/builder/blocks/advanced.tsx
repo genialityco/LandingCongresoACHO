@@ -439,6 +439,8 @@ export function RegistrationBlock(p: RegistrationProps) {
     <div ref={rootRef(p)} className={`lp-registration ${s.className}`} {...s.attrs}>
       <StyleTag css={css} />
       <div className="lp-registration-media">
+        {/* Relleno difuminado: la imagen se ve completa aunque el formulario sea más alto. */}
+        {p.image?.url ? <Img media={p.image} alt="" className="lp-registration-media-fill" /> : null}
         <Img media={p.image} alt={p.imageAlt} />
       </div>
       <div className="lp-registration-body">

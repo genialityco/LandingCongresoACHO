@@ -17,6 +17,7 @@ import {
   type FooterSettings,
   type GlobalSettings,
   type NavbarSettings,
+  type NavTopBar,
   type ResponsiveValue,
   type SettingsKey,
   type SidebarSettings,
@@ -28,6 +29,7 @@ import { listPages } from "@/lib/services/pages";
 import { loadSettings, publishSettings, saveSettingsDraft } from "@/lib/services/settings";
 import { useAuth } from "../auth";
 import { MediaField } from "../media/MediaField";
+import { ICON_OPTIONS } from "@/builder/icons";
 import { PageHeader } from "../AdminShell";
 import { publishSettingsAndRevalidate } from "./publish-settings";
 import { NavLinksEditor, SimpleLinksEditor, uid } from "./LinksEditor";
@@ -103,6 +105,79 @@ function Toggle({ label, checked, onChange, hint }: { label: string; checked: bo
 }
 
 const GOOGLE_FONTS = ["Inter", "Poppins", "Montserrat", "Roboto", "Open Sans", "Lato", "Nunito", "Raleway", "Playfair Display", "Merriweather", "DM Sans", "Manrope", "Work Sans", "Source Sans 3", "Space Grotesk", "Outfit", "system-ui", "Georgia"];
+
+const SOCIAL_NETWORKS = ["facebook", "instagram", "linkedin", "youtube", "x", "mail", "phone", "globe"];
+
+function SocialLinksEditor({ value, onChange }: { value: { id: string; network: string; url: string }[]; onChange: (v: { id: string; network: string; url: string }[]) => void }) {
+  return (
+    <>
+      {value.map((s, i) => (
+        <div key={s.id} className="flex gap-2">
+          <NativeSelect className="w-40" value={s.network} onChange={(e) => onChange(value.map((x, k) => (k === i ? { ...x, network: e.target.value } : x)))}>
+            {SOCIAL_NETWORKS.map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </NativeSelect>
+          <Input value={s.url} placeholder="https://" onChange={(e) => onChange(value.map((x, k) => (k === i ? { ...x, url: e.target.value } : x)))} />
+          <Button size="icon-sm" variant="ghost" aria-label="Eliminar" onClick={() => onChange(value.filter((_, k) => k !== i))}>
+            <Trash2 />
+          </Button>
+        </div>
+      ))}
+      <div>
+        <Button size="sm" variant="outline" onClick={() => onChange([...value, { id: uid(), network: "instagram", url: "" }])}>
+          <Plus /> Añadir red
+        </Button>
+      </div>
+    </>
+  );
+}
+
+function TopBarForm({ v, set }: { v: NavTopBar; set: (v: NavTopBar) => void }) {
+  const items = v.items;
+  const setItem = (i: number, patch: Partial<NavTopBar["items"][number]>) => set({ ...v, items: items.map((x, k) => (k === i ? { ...x, ...patch } : x)) });
+  return (
+    <>
+      <Group title="Franja superior (sobre la navbar)">
+        <Toggle label="Mostrar franja superior" checked={v.enabled} onChange={(enabled) => set({ ...v, enabled })} />
+        <Toggle label="Ocultar en mobile" checked={v.hideOnMobile} onChange={(hideOnMobile) => set({ ...v, hideOnMobile })} />
+      </Group>
+      <Group title="Franja superior · contacto (izquierda)" cols={1}>
+        {items.map((it, i) => (
+          <div key={it.id} className="flex gap-1.5">
+            <NativeSelect className="w-32" value={it.icon} onChange={(e) => setItem(i, { icon: e.target.value })} aria-label="Icono">
+              {ICON_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </NativeSelect>
+            <Input className="h-8" value={it.text} placeholder="Texto" onChange={(e) => setItem(i, { text: e.target.value })} aria-label="Texto" />
+            <Input className="h-8 font-mono text-xs" value={it.href} placeholder="tel:+57…, mailto:…, https://… (opcional)" onChange={(e) => setItem(i, { href: e.target.value })} aria-label="Enlace" />
+            <Button size="icon-sm" variant="ghost" aria-label="Eliminar" onClick={() => set({ ...v, items: items.filter((_, k) => k !== i) })}>
+              <Trash2 />
+            </Button>
+          </div>
+        ))}
+        <div>
+          <Button size="sm" variant="outline" onClick={() => set({ ...v, items: [...items, { id: uid(), icon: "phone", text: "", href: "" }] })}>
+            <Plus /> Añadir elemento
+          </Button>
+        </div>
+      </Group>
+      <Group title="Franja superior · redes (derecha)" cols={1}>
+        <SocialLinksEditor value={v.social} onChange={(social) => set({ ...v, social })} />
+      </Group>
+      <Group title="Franja superior · estilo" cols={4}>
+        <FormRow label="Fondo"><ColorInput value={v.colors.background} onChange={(x) => set({ ...v, colors: { ...v.colors, background: x } })} /></FormRow>
+        <FormRow label="Texto"><ColorInput value={v.colors.text} onChange={(x) => set({ ...v, colors: { ...v.colors, text: x } })} /></FormRow>
+        <FormRow label="Iconos de contacto"><ColorInput value={v.colors.icon} onChange={(x) => set({ ...v, colors: { ...v.colors, icon: x } })} /></FormRow>
+        <FormRow label="Círculo de redes"><ColorInput value={v.colors.socialBackground} onChange={(x) => set({ ...v, colors: { ...v.colors, socialBackground: x } })} /></FormRow>
+        <FormRow label="Icono de redes"><ColorInput value={v.colors.socialColor} onChange={(x) => set({ ...v, colors: { ...v.colors, socialColor: x } })} /></FormRow>
+        <FormRow label="Tamaño de letra"><Input value={v.fontSize} onChange={(e) => set({ ...v, fontSize: e.target.value })} /></FormRow>
+        <FormRow label="Padding vertical"><Input value={v.paddingY} onChange={(e) => set({ ...v, paddingY: e.target.value })} /></FormRow>
+      </Group>
+    </>
+  );
+}
 
 // ---------- Formularios ----------
 function ThemeForm({ v, set }: { v: ThemeSettings; set: (v: ThemeSettings) => void }) {
@@ -218,6 +293,7 @@ function NavbarForm({ v, set }: { v: NavbarSettings; set: (v: NavbarSettings) =>
           <ResponsiveInputs label="Alto del logo" value={v.logoHeight} onChange={(logoHeight) => set({ ...v, logoHeight })} />
         </div>
       </Group>
+      <TopBarForm v={v.topBar} set={(topBar) => set({ ...v, topBar })} />
       <Group title="Enlaces y submenús" cols={1}>
         <NavLinksEditor value={v.links} onChange={(links) => set({ ...v, links })} />
       </Group>
@@ -353,24 +429,7 @@ function FooterForm({ v, set }: { v: FooterSettings; set: (v: FooterSettings) =>
         </div>
       </Group>
       <Group title="Redes sociales" cols={1}>
-        {v.social.map((s, i) => (
-          <div key={s.id} className="flex gap-2">
-            <NativeSelect className="w-40" value={s.network} onChange={(e) => set({ ...v, social: v.social.map((x, k) => (k === i ? { ...x, network: e.target.value } : x)) })}>
-              {["facebook", "instagram", "linkedin", "youtube", "x", "mail", "phone", "globe"].map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </NativeSelect>
-            <Input value={s.url} placeholder="https://" onChange={(e) => set({ ...v, social: v.social.map((x, k) => (k === i ? { ...x, url: e.target.value } : x)) })} />
-            <Button size="icon-sm" variant="ghost" aria-label="Eliminar" onClick={() => set({ ...v, social: v.social.filter((_, k) => k !== i) })}>
-              <Trash2 />
-            </Button>
-          </div>
-        ))}
-        <div>
-          <Button size="sm" variant="outline" onClick={() => set({ ...v, social: [...v.social, { id: uid(), network: "instagram", url: "" }] })}>
-            <Plus /> Añadir red
-          </Button>
-        </div>
+        <SocialLinksEditor value={v.social} onChange={(social) => set({ ...v, social })} />
       </Group>
       <Group title="Estilo de redes y enlaces" cols={4}>
         <FormRow label="Iconos de redes">

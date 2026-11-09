@@ -15,6 +15,7 @@ import { RenderNode } from "../render/PageRenderer";
 import { LandingShell, type PageLayoutOverrides } from "../site/LandingShell";
 import type { Appearance, Background, ResponsiveBox, VideoSource } from "../styles/types";
 import { useEditorContext } from "./context";
+import { REGISTRATION_DEFAULTS } from "../blocks/client/Registration";
 import { ResponsiveField, type ResponsiveGroup } from "./fields/ResponsiveField";
 import { TextStyleField } from "./fields/TextStyleField";
 import { AppearanceField, BackgroundField, ButtonColorsField, ContentPositionField, VideoSourceField, type AppearanceGroup } from "./fields/StyleFields";
@@ -636,10 +637,21 @@ export const puckConfig: Config = {
         text: textarea("Texto", true),
         nameLabel: text("Etiqueta: nombre"),
         namePlaceholder: text("Placeholder: nombre"),
-        phoneLabel: text("Etiqueta: teléfono"),
-        phonePlaceholder: text("Placeholder: teléfono"),
         emailLabel: text("Etiqueta: correo"),
         emailPlaceholder: text("Placeholder: correo"),
+        phoneLabel: text("Etiqueta: teléfono"),
+        phonePlaceholder: text("Placeholder: teléfono"),
+        genderLabel: text("Etiqueta: género"),
+        genderOptions: textarea("Opciones de género (separadas por coma; vacío = texto libre)"),
+        ageLabel: text("Etiqueta: edad"),
+        agePlaceholder: text("Placeholder: edad"),
+        countryLabel: text("Etiqueta: país"),
+        countryOptions: textarea("Opciones de país (separadas por coma; vacío = texto libre)"),
+        professionLabel: text("Etiqueta: profesión"),
+        professionOptions: textarea("Opciones de profesión (separadas por coma; vacío = texto libre)"),
+        areaLabel: text("Etiqueta: ámbito profesional"),
+        areaOptions: textarea("Opciones de ámbito (separadas por coma; vacío = texto libre)"),
+        selectPlaceholder: text("Texto inicial de las listas"),
         submitLabel: text("Texto del botón"),
         successMessage: text("Mensaje al inscribirse"),
         duplicateMessage: text("Mensaje si ya estaba inscrito"),
@@ -664,15 +676,7 @@ export const puckConfig: Config = {
         imageAlt: "V Congreso y IV Cumbre Iberoamericana de Hematología 2027",
         title: "¡Inscríbete Ahora!",
         text: "Completa tus datos para asegurar tu cupo.",
-        nameLabel: "Nombre",
-        namePlaceholder: "Nombre Completo",
-        phoneLabel: "Teléfono",
-        phonePlaceholder: "Número de teléfono",
-        emailLabel: "Correo Electrónico",
-        emailPlaceholder: "ejemplo@ejemplo.com",
-        submitLabel: "INSCRIBIRME",
-        successMessage: "¡Te has registrado en el evento!",
-        duplicateMessage: "Ya te has registrado con anterioridad.",
+        ...REGISTRATION_DEFAULTS,
         colors: {},
         layout: { desktop: { maxWidth: "1100px", align: "center" } },
         appearance: {},

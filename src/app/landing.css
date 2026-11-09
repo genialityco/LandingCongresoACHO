@@ -146,16 +146,20 @@
 .lp-form-status { padding: 12px 14px; border-radius: 8px; background: color-mix(in srgb, var(--lp-color-accent) 12%, transparent); }
 /* Inscripción al evento: imagen a la izquierda, formulario a la derecha; apilado en mobile. */
 .lp-registration { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); width: 100%; background: var(--lp-reg-card, #fff); border-radius: 22px; box-shadow: 0 10px 30px rgba(15, 23, 42, .12); }
-.lp-registration-media { min-width: 0; }
-.lp-registration-media img, .lp-registration-media .lp-img-empty { width: 100%; height: 100%; object-fit: cover; border-radius: 22px; }
+.lp-registration-media { min-width: 0; position: relative; overflow: hidden; border-radius: 22px; display: grid; place-items: center; }
+.lp-registration-media img, .lp-registration-media .lp-img-empty { position: relative; width: 100%; height: 100%; object-fit: contain; }
+.lp-registration-media img.lp-registration-media-fill { position: absolute; inset: 0; object-fit: cover; filter: blur(24px) brightness(.85); transform: scale(1.15); }
 .lp-registration-body { display: flex; flex-direction: column; gap: 10px; padding: 40px 36px; min-width: 0; align-self: center; }
 .lp-registration-title { font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 700; line-height: 1.15; color: var(--lp-reg-title, #111827); }
 .lp-registration-text { color: var(--lp-reg-text, #111827); font-weight: 500; }
-.lp-registration-form { display: flex; flex-direction: column; gap: 16px; margin-top: 18px; position: relative; }
+.lp-registration-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 16px; margin-top: 18px; position: relative; }
+.lp-registration-form .is-wide { grid-column: 1 / -1; }
 .lp-registration-form label { display: flex; flex-direction: column; gap: 8px; font-size: .85em; font-weight: 700; color: var(--lp-reg-label, #111827); }
-.lp-registration-form input { font: inherit; font-weight: 400; font-size: .95rem; width: 100%; border: 0; border-radius: 6px; padding: 11px 14px; background: var(--lp-reg-input, #f3f4f6); color: #111827; }
+.lp-registration-form :is(input, select) { font: inherit; font-weight: 400; font-size: .95rem; width: 100%; border: 0; border-radius: 6px; padding: 11px 14px; background: var(--lp-reg-input, #f3f4f6); color: #111827; }
+.lp-registration-form select:invalid { color: #9ca3af; }
+.lp-registration-form option { color: #111827; }
 .lp-registration-form input::placeholder { color: #9ca3af; }
-.lp-registration-form input:focus { outline: 2px solid var(--lp-reg-btn, #b5c536); outline-offset: 1px; }
+.lp-registration-form :is(input, select):focus { outline: 2px solid var(--lp-reg-btn, #b5c536); outline-offset: 1px; }
 .lp-registration-form button { font: inherit; font-weight: 700; text-transform: uppercase; border: 0; border-radius: 6px; padding: 12px 18px; margin-top: 8px; cursor: pointer; background: var(--lp-reg-btn, #b5c536); color: var(--lp-reg-btn-text, #111827); transition: filter .2s; }
 .lp-registration-form button:hover { filter: brightness(.95); }
 .lp-registration-form button:disabled { opacity: .7; cursor: wait; }
@@ -165,7 +169,9 @@
 @media (max-width: 767px) {
   .lp-registration { grid-template-columns: 1fr; }
   .lp-registration-media img, .lp-registration-media .lp-img-empty { height: auto; }
+  .lp-registration-media img.lp-registration-media-fill { display: none; }
   .lp-registration-body { padding: 28px 20px 32px; }
+  .lp-registration-form { grid-template-columns: minmax(0, 1fr); }
 }
 .lp-cta { position: relative; overflow: hidden; border-radius: var(--lp-radius); padding: 72px 32px; color: #fff; display: flex; }
 .lp-cta-inner { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 18px; width: 100%; max-width: 760px; }
@@ -196,6 +202,16 @@
 .lp-nav.is-transparent.is-sticky { position: fixed; }
 .lp-nav.is-transparent:not(.is-scrolled) { background: transparent !important; color: var(--lp-nav-transparent-text) !important; }
 .lp-nav.is-scrolled { box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+.lp-topbar { width: 100%; color: inherit; }
+.lp-topbar-inner { margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; padding-left: var(--lp-gutter); padding-right: var(--lp-gutter); }
+.lp-topbar-items { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 40px; list-style: none; margin: 0; padding: 0; }
+.lp-topbar-items li, .lp-topbar-items a { display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+.lp-topbar-items a:hover { text-decoration: underline; }
+.lp-topbar-items svg { color: var(--lp-topbar-icon); flex-shrink: 0; }
+.lp-topbar-social { display: flex; align-items: center; gap: 6px; }
+.lp-topbar-social a { width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center; transition: opacity .15s; }
+.lp-topbar-social a:hover { opacity: .8; }
+.lp-nav.is-transparent:not(.is-scrolled) .lp-topbar { background: transparent !important; color: var(--lp-nav-transparent-text) !important; }
 .lp-nav-inner { margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-left: var(--lp-gutter); padding-right: var(--lp-gutter); }
 .lp-nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; font-size: 1.2em; color: inherit; }
 .lp-nav-brand img { height: var(--lp-nav-logo-h); width: auto; }
@@ -281,6 +297,9 @@
   .lp-footer-inner { grid-template-columns: minmax(0, 1fr); }
   .lp-nav.collapse-mobile .lp-nav-links, .lp-nav.collapse-mobile .lp-nav-actions { display: none; }
   .lp-nav.collapse-mobile .lp-nav-toggle { display: inline-flex; }
+  .lp-topbar.hide-mobile { display: none; }
+  .lp-topbar-inner { justify-content: center; }
+  .lp-topbar-items { justify-content: center; gap: 4px 18px; }
   .lp-cta { padding: 48px 20px; }
   .lp-btn { white-space: normal; text-align: center; }
 }
