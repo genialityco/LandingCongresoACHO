@@ -59,9 +59,10 @@ export const REGISTRATION_DEFAULTS: RegistrationTexts = {
     "Colombia, Argentina, Bolivia, Brasil, Chile, Costa Rica, Cuba, Ecuador, El Salvador, España, Guatemala, Honduras, México, Nicaragua, Panamá, Paraguay, Perú, Portugal, Puerto Rico, República Dominicana, Uruguay, Venezuela, Estados Unidos, Otro",
   professionLabel: "Profesión",
   professionOptions:
-    "Médico(a) hematólogo(a), Médico(a) oncólogo(a), Médico(a) especialista en otra área, Médico(a) residente, Médico(a) general, Enfermería, Bacteriología / Laboratorio clínico, Química farmacéutica, Estudiante, Otra",
+    "Oncólogo médico, Oncólogo clínico, Oncólogo quirúrgico, Oncólogo radioterápico / radioterapeuta, Patólogo, Radiólogo, Especialista en cuidados paliativos, Enfermero/a en oncología, Médico de atención primaria, Investigador clínico y científico, Profesional de la salud, Residente, Interno, Otro",
   areaLabel: "Ámbito de actividad profesional",
-  areaOptions: "Asistencial - sector público, Asistencial - sector privado, Académico / Investigación, Industria farmacéutica, Administrativo / Gestión en salud, Otro",
+  areaOptions:
+    "Hospital universitario, Hospital general (con funciones de docencia), Hospital general (sin funciones de docencia), Centro integral de cáncer, Práctica privada, Institución académica, Organización de investigación sin ánimo de lucro, Industria farmacéutica, Empresa de biotecnología, Otro",
   selectPlaceholder: "Selecciona…",
   submitLabel: "INSCRIBIRME",
   successMessage: "¡Te has registrado en el evento!",
