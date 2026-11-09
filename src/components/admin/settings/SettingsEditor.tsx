@@ -106,7 +106,7 @@ function Toggle({ label, checked, onChange, hint }: { label: string; checked: bo
 
 const GOOGLE_FONTS = ["Inter", "Poppins", "Montserrat", "Roboto", "Open Sans", "Lato", "Nunito", "Raleway", "Playfair Display", "Merriweather", "DM Sans", "Manrope", "Work Sans", "Source Sans 3", "Space Grotesk", "Outfit", "system-ui", "Georgia"];
 
-const SOCIAL_NETWORKS = ["facebook", "instagram", "linkedin", "youtube", "x", "mail", "phone", "globe"];
+const SOCIAL_NETWORKS = ["facebook", "instagram", "linkedin", "youtube", "x", "whatsapp", "mail", "phone", "globe"];
 
 function SocialLinksEditor({ value, onChange }: { value: { id: string; network: string; url: string }[]; onChange: (v: { id: string; network: string; url: string }[]) => void }) {
   return (
@@ -151,7 +151,7 @@ function TopBarForm({ v, set }: { v: NavTopBar; set: (v: NavTopBar) => void }) {
               ))}
             </NativeSelect>
             <Input className="h-8" value={it.text} placeholder="Texto" onChange={(e) => setItem(i, { text: e.target.value })} aria-label="Texto" />
-            <Input className="h-8 font-mono text-xs" value={it.href} placeholder="tel:+57…, mailto:…, https://… (opcional)" onChange={(e) => setItem(i, { href: e.target.value })} aria-label="Enlace" />
+            <Input className="h-8 font-mono text-xs" value={it.href} placeholder="https://wa.me/57…, tel:+57…, mailto:… (opcional)" onChange={(e) => setItem(i, { href: e.target.value })} aria-label="Enlace" />
             <Button size="icon-sm" variant="ghost" aria-label="Eliminar" onClick={() => set({ ...v, items: items.filter((_, k) => k !== i) })}>
               <Trash2 />
             </Button>
